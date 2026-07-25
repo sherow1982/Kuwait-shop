@@ -36,7 +36,7 @@ const seoTypes = ['شراء', 'افضل', 'احسن', 'تجربتي'];
 const today = new Date().toISOString().slice(0, 10);
 const urlset = (entries) => `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${entries.join('')}</urlset>\n`;
 
-const productSitemapEntries = products.map((product) => `<url><loc>${xmlEscape(productUrl(product))}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`);
+const productSitemapEntries = products.map((product) => `<url><loc>${xmlEscape(productUrl(product))}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>${product.original ? '0.9' : '0.8'}</priority></url>`);
 const siteSitemapEntries = [
   `<url><loc>${siteUrl}/</loc><lastmod>${today}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>`,
   ...legalPages.map((slug) => `<url><loc>${siteUrl}/ar/${slug}</loc><lastmod>${today}</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>`)

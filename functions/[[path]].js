@@ -56,6 +56,7 @@ function isLegalRoute(pathname) {
 }
 
 function productSchema(product) {
+  const priceValidUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -64,15 +65,34 @@ function productSchema(product) {
     image: [product.image],
     category: product.googleProductCategory || product.category,
     sku: product.id,
+    brand: { '@type': 'Brand', name: 'كويت شوب' },
     offers: {
       '@type': 'Offer',
       url: productUrl(product),
       priceCurrency: 'KWD',
       price: Number(product.price).toFixed(2),
+      priceValidUntil,
       availability: 'https://schema.org/InStock',
       itemCondition: 'https://schema.org/NewCondition',
       seller: { '@id': ORGANIZATION_ID },
-      hasMerchantReturnPolicy: { '@id': RETURN_POLICY_ID }
+      hasMerchantReturnPolicy: { '@id': RETURN_POLICY_ID },
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: '0',
+          currency: 'KWD'
+        },
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'KW'
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+          transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' }
+        }
+      }
     }
   };
 }
@@ -91,6 +111,8 @@ function replaceMetadata(html, { title, description, canonical, type, image, sch
     .replace(/<meta\b(?=[^>]*\bproperty="og:image")[^>]*>/i, `<meta property="og:image" content="${escapeHtml(image)}" />`)
     .replace(/<meta\b(?=[^>]*\bproperty="og:image:secure_url")[^>]*>/i, `<meta property="og:image:secure_url" content="${escapeHtml(image)}" />`)
     .replace(/<meta\b(?=[^>]*\bproperty="og:image:type")[^>]*>/i, `<meta property="og:image:type" content="${imageType}" />`)
+    .replace(/<meta\b(?=[^>]*\bproperty="og:image:width")[^>]*>/i, `<meta property="og:image:width" content="800" />`)
+    .replace(/<meta\b(?=[^>]*\bproperty="og:image:height")[^>]*>/i, `<meta property="og:image:height" content="800" />`)
     .replace(/<meta\b(?=[^>]*\bproperty="og:image:alt")[^>]*>/i, `<meta property="og:image:alt" content="${escapeHtml(title)}" />`)
     .replace(/<meta\b(?=[^>]*\bname="twitter:title")[^>]*>/i, `<meta name="twitter:title" content="${escapeHtml(title)}" />`)
     .replace(/<meta\b(?=[^>]*\bname="twitter:description")[^>]*>/i, `<meta name="twitter:description" content="${escapeHtml(description)}" />`)
@@ -210,9 +232,9 @@ export async function onRequest(context) {
         "default-src 'self'",
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://kuwait-shop.arabsads.shop",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-        "font-src 'self' https://fonts.gstatic.com",
+        "font-src 'self' https://fonts.gstatic.com data:",
         "img-src 'self' data: https://assets.wuiltstore.com https://kuwait-shop.arabsads.shop",
-        "connect-src 'self' https://kuwait-shop.arabsads.shop",
+        "connect-src 'self' https://kuwait-shop.arabsads.shop https://fonts.googleapis.com https://fonts.gstatic.com",
         "frame-ancestors 'none'"
       ].join('; ')
     }

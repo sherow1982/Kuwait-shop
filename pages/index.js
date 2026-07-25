@@ -3,15 +3,52 @@ import { useEffect } from 'react';
 
 const organizationSchema = {
   '@context': 'https://schema.org',
-  '@type': 'OnlineStore',
+  '@type': ['OnlineStore', 'LocalBusiness'],
   '@id': 'https://kuwait-shop.arabsads.shop/#organization',
   name: 'كويت شوب',
+  alternateName: 'Kuwait Shop',
   url: 'https://kuwait-shop.arabsads.shop/',
+  logo: 'https://kuwait-shop.arabsads.shop/brand/kuwait-shop-mark.svg',
+  image: 'https://kuwait-shop.arabsads.shop/brand/kuwait-shop-social.png',
   description: 'متجر إلكتروني كويتي لمنتجات المنزل والحياة اليومية مع التوصيل داخل الكويت.',
   currenciesAccepted: 'KWD',
   paymentAccepted: 'الدفع عند الاستلام',
+  priceRange: 'د.ك',
   inLanguage: 'ar-KW',
-  areaServed: { '@type': 'Country', name: 'Kuwait', identifier: 'KW' },
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'الكويت',
+    addressRegion: 'محافظة العاصمة',
+    addressCountry: 'KW'
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: '29.3759',
+    longitude: '47.9774'
+  },
+  hasMap: 'https://maps.google.com/?q=29.3759,47.9774',
+  openingHoursSpecification: {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: ['Sunday','Monday','Tuesday','Wednesday','Thursday'],
+    opens: '09:00',
+    closes: '21:00'
+  },
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer service',
+    telephone: '+965-9907-7241',
+    contactOption: 'TollFree',
+    areaServed: 'KW',
+    availableLanguage: { '@type': 'Language', name: 'Arabic' }
+  },
+  areaServed: [
+    { '@type': 'City', name: 'مدينة الكويت', containedInPlace: { '@type': 'Country', name: 'Kuwait' } },
+    { '@type': 'City', name: 'حولي', containedInPlace: { '@type': 'Country', name: 'Kuwait' } },
+    { '@type': 'City', name: 'الفروانية', containedInPlace: { '@type': 'Country', name: 'Kuwait' } },
+    { '@type': 'City', name: 'الجهراء', containedInPlace: { '@type': 'Country', name: 'Kuwait' } },
+    { '@type': 'City', name: 'الأحمدي', containedInPlace: { '@type': 'Country', name: 'Kuwait' } },
+    { '@type': 'City', name: 'مبارك الكبير', containedInPlace: { '@type': 'Country', name: 'Kuwait' } }
+  ],
   hasMerchantReturnPolicy: {
     '@type': 'MerchantReturnPolicy',
     '@id': 'https://kuwait-shop.arabsads.shop/#return-policy',
@@ -27,8 +64,17 @@ const organizationSchema = {
     '@type': 'ShippingService',
     '@id': 'https://kuwait-shop.arabsads.shop/#shipping-service',
     name: 'التوصيل داخل الكويت',
-    description: 'التوصيل متاح داخل المحافظات الكويتية الست. الشحن مجاني لبعض المناطق وتصل رسوم المناطق الخاصة إلى 5 د.ك؛ تُراجع الرسوم النهائية حسب العنوان قبل تأكيد الطلب.',
-    fulfillmentType: 'https://schema.org/FulfillmentTypeDelivery'
+    description: 'التوصيل متاح داخل المحافظات الكويتية الست. الشحن مجاني لبعض المناطق وتصل رسوم المناطق الخاصة إلى 5 د.ك.',
+    fulfillmentType: 'https://schema.org/FulfillmentTypeDelivery',
+    shippingDestination: {
+      '@type': 'DefinedRegion',
+      addressCountry: 'KW'
+    },
+    deliveryTime: {
+      '@type': 'ShippingDeliveryTime',
+      handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+      transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' }
+    }
   }
 };
 
@@ -54,6 +100,8 @@ export default function KuwaitShopHome() {
         <meta property="og:image" content="https://kuwait-shop.arabsads.shop/brand/kuwait-shop-social.png" />
         <meta property="og:image:secure_url" content="https://kuwait-shop.arabsads.shop/brand/kuwait-shop-social.png" />
         <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content="كويت شوب - كل ما يحتاجه البيت الكويتي" />
         <meta property="og:locale" content="ar_KW" />
         <meta property="og:site_name" content="كويت شوب" />
