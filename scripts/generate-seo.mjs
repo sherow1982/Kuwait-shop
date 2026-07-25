@@ -51,20 +51,39 @@ await writeFile(join(publicPath, 'sitemaps', 'seo-landings.xml'), urlset(seoSite
 const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><sitemap><loc>${siteUrl}/sitemaps/pages.xml</loc><lastmod>${today}</lastmod></sitemap><sitemap><loc>${siteUrl}/sitemaps/products.xml</loc><lastmod>${today}</lastmod></sitemap><sitemap><loc>${siteUrl}/sitemaps/seo-landings.xml</loc><lastmod>${today}</lastmod></sitemap></sitemapindex>\n`;
 await writeFile(join(publicPath, 'sitemap.xml'), sitemapIndex, 'utf8');
 
-const merchantItems = products.map((product) => `
+// Google taxonomy numeric IDs — https://www.google.com/basepages/producttype/taxonomy-with-ids.en-US.txt
+const TAXONOMY_IDS = {
+  'Home & Garden > Kitchen & Dining > Cookware & Bakeware': 4973,
+  'Arts & Entertainment > Hobbies & Creative Arts > Arts & Crafts > Art & Craft Kits': 505372,
+  'Health & Beauty': 491,
+  'Home & Garden': 536,
+  'Electronics': 222,
+  'Vehicles & Parts > Vehicle Parts & Accessories > Vehicle Maintenance, Care & Decor > Vehicle Cleaning': 8237,
+  'Cameras & Optics > Cameras > Surveillance Cameras': 296,
+  'Apparel & Accessories': 166,
+  'Animals & Pet Supplies': 1,
+  'Toys & Games': 1239,
+  'Sporting Goods': 988,
+  'Office Supplies': 922
+};
+
+const merchantItems = products.map((product) => {
+  const categoryId = TAXONOMY_IDS[product.googleProductCategory] || '';
+  const categoryValue = categoryId ? String(categoryId) : xmlEscape(product.googleProductCategory || product.category);
+  return `
   <item>
     <g:id>${xmlEscape(product.id)}</g:id>
     <g:title>${xmlEscape(product.title)}</g:title>
-    <g:description>${xmlEscape(product.description)}</g:description>
+    <g:description>${xmlEscape(product.description || product.title)}</g:description>
     <g:link>${xmlEscape(productUrl(product))}</g:link>
     <g:image_link>${xmlEscape(product.image)}</g:image_link>
     <g:price>${Number(product.price).toFixed(2)} KWD</g:price>
     <g:availability>in_stock</g:availability>
     <g:condition>new</g:condition>
-    <g:google_product_category>${xmlEscape(`${product.googleProductCategoryId} - ${product.googleProductCategory}`)}</g:google_product_category>
-    <g:product_type>${xmlEscape(product.productType)}</g:product_type>
+    <g:google_product_category>${categoryValue}</g:google_product_category>
     <g:identifier_exists>false</g:identifier_exists>
-  </item>`).join('');
+  </item>`;
+}).join('');
 const merchantFeed = `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0"><channel><title>كويت شوب</title><link>${siteUrl}</link><description>منتجات كويت شوب المتاحة داخل الكويت</description>${merchantItems}\n</channel></rss>\n`;
 await mkdir(join(publicPath, 'feeds'), { recursive: true });
 await writeFile(join(publicPath, 'feeds', 'google-merchant.xml'), merchantFeed, 'utf8');
