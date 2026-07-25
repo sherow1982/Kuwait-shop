@@ -244,21 +244,22 @@ function productCard(product) {
   return `
     <article class="product-card">
       <a class="product-image" href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener" aria-label="عرض ${escapeHtml(product.title)}">
-        ${savings ? `<span class="discount-badge">وفر ${savings}%</span>` : ''}
+        <span class="product-badge product-badge-new">جديد</span>
+        ${savings ? `<span class="discount-badge">−${savings}%</span>` : ''}
         <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" loading="lazy" decoding="async" onerror="this.classList.add('image-failed'); this.alt='صورة المنتج غير متاحة';" />
       </a>
-      <div class="product-hover-actions"><button data-action="open-product" data-product-id="${escapeHtml(product.id)}" aria-label="معاينة سريعة">◉</button><button data-action="toggle-wishlist" data-product-id="${escapeHtml(product.id)}" aria-label="إضافة للمفضلة">♡</button></div>
+      <div class="product-hover-actions"><button data-action="open-product" data-product-id="${escapeHtml(product.id)}" aria-label="معاينة سريعة"><span aria-hidden="true">⌕</span></button><button data-action="toggle-wishlist" data-product-id="${escapeHtml(product.id)}" aria-label="إضافة للمفضلة"><span aria-hidden="true">♡</span></button></div>
       <div class="product-content">
         <button class="category-label" data-action="set-category" data-category="${escapeHtml(product.category)}">${escapeHtml(product.category)}</button>
         <h3><a href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener">${escapeHtml(product.title)}</a></h3>
-        <div class="product-rating" aria-label="لا توجد مراجعات بعد"><span>★★★★★</span><small>كن أول من يقيّم</small></div>
+        <div class="product-rating" aria-label="تقييم المنتج"><span>★★★★★</span><small>لا توجد مراجعات</small></div>
         <div class="price-row">
           <span class="current-price">${price(product.price)}</span>
           ${product.original ? `<span class="old-price">${price(product.original)}</span>` : ''}
         </div>
         <div class="card-footer">
-          <span class="availability"><i></i> متوفر الآن</span>
-          <button class="add-button" data-action="add-cart" data-product-id="${escapeHtml(product.id)}">أضف للسلة <span>+</span></button>
+          <span class="availability"><i></i> متوفر في المخزون</span>
+          <button class="add-button" data-action="add-cart" data-product-id="${escapeHtml(product.id)}"><span>أضف للسلة</span><b aria-hidden="true">+</b></button>
         </div>
       </div>
     </article>`;
@@ -317,6 +318,7 @@ function renderCart() {
 function renderProductPage(product) {
   const description = product.description || 'منتج مختار بعناية لتلبية احتياجاتك اليومية.';
   const related = state.products.filter((item) => item.id !== product.id && item.category === product.category).slice(0, 4);
+  const savings = discount(product);
   document.title = `${product.title} | كويت شوب`;
   document.querySelector('meta[name="description"]')?.setAttribute('content', `${product.title} — ${description.slice(0, 145)}`);
   document.querySelector('#product-jsonld')?.remove();
@@ -334,11 +336,26 @@ function renderProductPage(product) {
     </header>
     <main class="product-page" id="top">
       <div class="product-breadcrumbs"><a href="/">الرئيسية</a><span>←</span><a href="/#products">${escapeHtml(product.category)}</a><span>←</span><strong>${escapeHtml(product.title)}</strong></div>
-      <section class="product-detail">
-        <div class="product-detail-image"><span class="kuwait-stamp">مختار للكويت</span><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" /></div>
-        <div class="product-detail-copy"><span class="category-label static-label">${escapeHtml(product.category)}</span><h1>${escapeHtml(product.title)}</h1><div class="detail-rating"><span>★★★★★</span><small>لا توجد مراجعات بعد</small><i>•</i><small>SKU: ${escapeHtml(product.id)}</small></div><div class="detail-price"><strong>${price(product.price)}</strong>${product.original ? `<del>${price(product.original)}</del><em>خصم ${discount(product)}%</em>` : ''}</div><div class="detail-rule"></div><p>${escapeHtml(description)}</p><div class="shipping-note">✦ ${escapeHtml(product.shipping || 'الشحن مجاني لبعض المناطق، وتصل الرسوم إلى 5 د.ك حسب المنطقة.')}</div><div class="detail-actions"><button class="primary-button detail-add-button" data-action="add-cart" data-product-id="${escapeHtml(product.id)}">أضف المنتج إلى السلة <span>←</span></button><button class="whatsapp-product-button" data-action="product-whatsapp" data-product-id="${escapeHtml(product.id)}"><span>◉</span> اطلب عبر واتساب</button></div><div class="detail-trust"><span>✓ دفع وتأكيد آمن</span><span>✓ توصيل محلي</span><span>✓ خدمة كويتية</span></div></div>
+      <section class="product-detail woodmart-product-layout">
+        <div class="product-gallery">
+          <div class="gallery-thumbs" aria-label="صور المنتج"><button class="is-active" aria-label="الصورة الرئيسية"><img src="${escapeHtml(product.image)}" alt="" /></button></div>
+          <div class="product-detail-image"><span class="kuwait-stamp">اختيار كويتي</span>${savings ? `<span class="detail-sale-badge">−${discount(product)}%</span>` : ''}<img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" /></div>
+        </div>
+        <div class="product-detail-copy product-summary">
+          <a class="product-category-link" href="/#products">${escapeHtml(product.category)}</a>
+          <h1>${escapeHtml(product.title)}</h1>
+          <div class="detail-rating"><span aria-label="خمس نجوم">★★★★★</span><a href="#product-info">لا توجد مراجعات بعد</a><i>•</i><span class="summary-sku">SKU: ${escapeHtml(product.id)}</span></div>
+          <div class="detail-price"><strong>${price(product.price)}</strong>${product.original ? `<del>${price(product.original)}</del><em>وفر ${discount(product)}%</em>` : ''}</div>
+          <div class="detail-rule"></div>
+          <p class="product-short-description">${escapeHtml(description)}</p>
+          <ul class="product-facts"><li><span>التوفر</span><b><i></i> متوفر في المخزون</b></li><li><span>التصنيف</span><b>${escapeHtml(product.category)}</b></li><li><span>التوصيل</span><b>داخل محافظات الكويت</b></li></ul>
+          <div class="shipping-note">✦ ${escapeHtml(product.shipping || 'الشحن مجاني لبعض المناطق، وتصل الرسوم إلى 5 د.ك حسب المنطقة.')}</div>
+          <div class="detail-actions"><div class="detail-quantity" aria-label="كمية المنتج"><button data-action="detail-quantity-change" data-delta="-1" aria-label="تقليل الكمية">−</button><input id="detail-quantity" value="1" type="number" min="1" inputmode="numeric" aria-label="الكمية" /><button data-action="detail-quantity-change" data-delta="1" aria-label="زيادة الكمية">+</button></div><button class="primary-button detail-add-button" data-action="add-cart" data-detail-quantity="true" data-product-id="${escapeHtml(product.id)}">أضف إلى السلة <span>←</span></button></div>
+          <button class="whatsapp-product-button full-whatsapp-button" data-action="product-whatsapp" data-product-id="${escapeHtml(product.id)}"><span>◉</span> اطلب هذا المنتج عبر واتساب</button>
+          <div class="detail-trust"><span>✓ دفع وتأكيد آمن</span><span>✓ توصيل محلي</span><span>✓ دعم عبر واتساب</span></div>
+        </div>
       </section>
-      <section class="product-tabs"><div class="product-tabs-nav"><button class="is-active">الوصف</button><button>معلومات التوصيل</button><button>العناية والضمان</button></div><div class="product-tab-content"><p>${escapeHtml(description)}</p><div><span>التصنيف</span><strong>${escapeHtml(product.googleProductCategory || product.category)}</strong></div><div><span>الشحن</span><strong>مجاني لبعض المناطق، وحتى 5 د.ك للمناطق ذات الرسوم الخاصة</strong></div></div></section>
+      <section class="product-tabs" id="product-info"><div class="product-tabs-nav" role="tablist"><button class="is-active" data-action="select-product-tab" data-product-tab="description" role="tab">الوصف</button><button data-action="select-product-tab" data-product-tab="shipping" role="tab">الشحن والتوصيل</button><button data-action="select-product-tab" data-product-tab="returns" role="tab">الاسترجاع والاسترداد</button><button data-action="select-product-tab" data-product-tab="information" role="tab">معلومات إضافية</button></div><div class="product-tab-content is-active" data-product-panel="description"><p>${escapeHtml(description)}</p></div><div class="product-tab-content" data-product-panel="shipping"><p>التوصيل متاح داخل دولة الكويت. الشحن مجاني لبعض المناطق، فيما تصل الرسوم إلى 5 د.ك للمناطق ذات الرسوم الخاصة. راجع <a href="/ar/shipping-policy">سياسة الشحن والتوصيل</a> قبل تأكيد الطلب.</p></div><div class="product-tab-content" data-product-panel="returns"><p>يمكنك طلب الاسترجاع أو الاستبدال خلال 14 يوماً من استلام الطلب، بشرط أن يكون المنتج غير مستخدم وفي عبوته الأصلية مع ملحقاته. المنتجات الشخصية أو القابلة للتلف أو المفتوحة لأسباب صحية لا تُقبل إلا عند وجود عيب مصنعي.</p><p>للطلبات التالفة أو غير المطابقة، تواصل معنا مع رقم الطلب وصور واضحة للمنتج. اقرأ <a href="/ar/refund-policy">سياسة الاسترجاع والاسترداد الكاملة</a> قبل تقديم الطلب.</p></div><div class="product-tab-content" data-product-panel="information"><div><span>التصنيف</span><strong>${escapeHtml(product.googleProductCategory || product.category)}</strong></div><div><span>رمز المنتج</span><strong>${escapeHtml(product.id)}</strong></div><div><span>الحالة</span><strong>متوفر في المخزون</strong></div></div></section>
       ${related.length ? `<section class="related-section"><div class="section-heading"><div><p class="eyebrow">قد يعجبك أيضاً</p><h2>منتجات من نفس التصنيف</h2></div><a class="text-button dark-text" href="/#products">عرض الكل <span>←</span></a></div><div class="products-grid">${related.map(productCard).join('')}</div></section>` : ''}
     </main>
     <footer><a class="brand" href="/"><span class="brand-mark">ك</span><span><b>كويت</b> شوب<small>لبيتٍ أجمل</small></span></a><p>وجهتك اليومية لمنتجات البيت والحياة في الكويت.</p>${legalFooterMarkup()}${companyFooterMarkup()}<small>© ${new Date().getFullYear()} كويت شوب. جميع الحقوق محفوظة.</small></footer>
@@ -516,16 +533,29 @@ function closeCart() {
   document.body.classList.remove('no-scroll');
 }
 
-function addCart(id) {
+function addCart(id, quantity = 1) {
   const product = productById(id);
   if (!product) return;
+  const safeQuantity = Math.max(1, Math.floor(Number(quantity) || 1));
   const item = state.cart.find((cartItem) => cartItem.id === id);
-  if (item) item.quantity += 1;
-  else state.cart.push({ id: product.id, title: product.title, price: product.price, image: product.image, quantity: 1 });
+  if (item) item.quantity += safeQuantity;
+  else state.cart.push({ id: product.id, title: product.title, price: product.price, image: product.image, quantity: safeQuantity });
   saveCart();
   renderCart();
   showToast(`تمت إضافة «${product.title}» إلى السلة`);
   window.setTimeout(() => { if (document.querySelector('#cart-drawer')) openCart(); }, 120);
+}
+
+function changeDetailQuantity(delta) {
+  const quantityInput = document.querySelector('#detail-quantity');
+  if (!quantityInput) return;
+  const nextQuantity = Math.max(1, Math.floor(Number(quantityInput.value || 1) + Number(delta || 0)));
+  quantityInput.value = String(nextQuantity);
+}
+
+function selectProductTab(tabName) {
+  document.querySelectorAll('[data-product-tab]').forEach((button) => button.classList.toggle('is-active', button.dataset.productTab === tabName));
+  document.querySelectorAll('[data-product-panel]').forEach((panel) => panel.classList.toggle('is-active', panel.dataset.productPanel === tabName));
 }
 
 function changeQuantity(id, delta) {
@@ -592,7 +622,7 @@ app.addEventListener('click', (event) => {
   const target = event.target.closest('[data-action]');
   if (!target) return;
   const { action, productId, category, delta } = target.dataset;
-  if (action === 'add-cart') addCart(productId);
+  if (action === 'add-cart') addCart(productId, target.dataset.detailQuantity === 'true' ? document.querySelector('#detail-quantity')?.value : 1);
   if (action === 'open-cart') openCart();
   if (action === 'close-cart') closeCart();
   if (action === 'open-product') { state.activeProduct = productById(productId); renderProductDialog(); }
@@ -604,8 +634,18 @@ app.addEventListener('click', (event) => {
   if (action === 'slider-go') setSliderSlide(Number(target.dataset.slideIndex || 0));
   if (action === 'toggle-wishlist') showToast('تم حفظ المنتج في قائمة المفضلة على هذا الجهاز.');
   if (action === 'change-quantity') changeQuantity(productId, delta);
+  if (action === 'detail-quantity-change') changeDetailQuantity(delta);
+  if (action === 'select-product-tab') selectProductTab(target.dataset.productTab);
   if (action === 'load-more') { state.visible += 36; renderProducts(); }
-  if (action === 'set-category') { state.category = category; state.visible = 36; renderCategories(); renderProducts(); document.querySelector('#products').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  if (action === 'set-category') {
+    const productsSection = document.querySelector('#products');
+    if (!productsSection) { window.location.href = `/?category=${encodeURIComponent(category)}`; return; }
+    state.category = category;
+    state.visible = 36;
+    renderCategories();
+    renderProducts();
+    productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
   if (action === 'toggle-categories') { state.categoriesExpanded = !state.categoriesExpanded; renderCategories(); }
   if (action === 'reset-filters') { state.query = ''; state.category = 'الكل'; state.visible = 36; document.querySelector('#search-input').value = ''; renderCategories(); renderProducts(); }
   if (action === 'focus-search') { document.querySelector('#search-input').focus(); document.querySelector('#products').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
@@ -633,6 +673,8 @@ async function start() {
     const response = await fetch('/data/products.json');
     if (!response.ok) throw new Error('Could not load product data');
     state.products = await response.json();
+    const requestedCategory = new URLSearchParams(window.location.search).get('category');
+    if (requestedCategory && state.products.some((product) => product.category === requestedCategory)) state.category = requestedCategory;
     const legalKey = LEGAL_PATHS[window.location.pathname.replace(/\/$/, '') || '/'];
     const productRoute = window.location.pathname.match(/^\/product\/(.+)$/);
     const routedProduct = productRoute ? productBySlug(decodeURIComponent(productRoute[1])) : null;
