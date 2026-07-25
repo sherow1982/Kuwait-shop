@@ -5,6 +5,8 @@ const siteUrl = 'https://kuwait-shop.arabsads.shop';
 const distPath = resolve('dist');
 const products = JSON.parse(await readFile(resolve('public/data/products.json'), 'utf8'));
 const baseHtml = await readFile(join(distPath, 'index.html'), 'utf8');
+const organizationId = `${siteUrl}/#organization`;
+const returnPolicyId = `${siteUrl}/#return-policy`;
 
 function xmlEscape(value = '') {
   return String(value).replace(/[<>&'"]/g, (character) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[character]));
@@ -30,9 +32,25 @@ function productSchema(product) {
       price: Number(product.price).toFixed(2),
       availability: 'https://schema.org/InStock',
       itemCondition: 'https://schema.org/NewCondition',
-      seller: { '@type': 'Organization', name: 'كويت شوب' }
+      seller: { '@id': organizationId },
+      hasMerchantReturnPolicy: { '@id': returnPolicyId }
     }
   };
+}
+
+function pageMetadata(html, { title, description, url, type = 'website', image = '' }) {
+  const socialImage = image ? `<meta property="og:image" content="${xmlEscape(image)}" /><meta name="twitter:image" content="${xmlEscape(image)}" />` : '';
+  return html
+    .replace(/<title>[^<]*<\/title>/i, `<title>${xmlEscape(title)}</title>`)
+    .replace(/<meta name="description" content="[^"]*"\s*\/>/i, `<meta name="description" content="${xmlEscape(description)}" />`)
+    .replace(/<link rel="canonical" href="[^"]*"\s*\/>/i, `<link rel="canonical" href="${xmlEscape(url)}" />`)
+    .replace(/<meta property="og:title" content="[^"]*"\s*\/>/i, `<meta property="og:title" content="${xmlEscape(title)}" />`)
+    .replace(/<meta property="og:description" content="[^"]*"\s*\/>/i, `<meta property="og:description" content="${xmlEscape(description)}" />`)
+    .replace(/<meta property="og:url" content="[^"]*"\s*\/>/i, `<meta property="og:url" content="${xmlEscape(url)}" />`)
+    .replace(/<meta property="og:type" content="[^"]*"\s*\/>/i, `<meta property="og:type" content="${type}" />`)
+    .replace(/<meta name="twitter:title" content="[^"]*"\s*\/>/i, `<meta name="twitter:title" content="${xmlEscape(title)}" />`)
+    .replace(/<meta name="twitter:description" content="[^"]*"\s*\/>/i, `<meta name="twitter:description" content="${xmlEscape(description)}" />`)
+    .replace('</head>', `${socialImage}</head>`);
 }
 
 const legalPages = [
@@ -44,13 +62,46 @@ const legalPages = [
   { slug: 'contact-us', title: 'تواصل معنا', description: 'تواصل مع خدمة عملاء كويت شوب للاستفسار عن المنتجات والطلبات والتوصيل والاسترجاع.' }
 ];
 
-const today = new Date().toISOString().slice(0, 10);
-const sitemapEntries = [
-  `<url><loc>${siteUrl}/</loc><lastmod>${today}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>`,
-  ...legalPages.map((page) => `<url><loc>${xmlEscape(`${siteUrl}/ar/${page.slug}`)}</loc><lastmod>${today}</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>`),
-  ...products.map((product) => `<url><loc>${xmlEscape(productUrl(product))}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`)
+const seoPageTypes = [
+  { slug: 'شراء', label: 'شراء', title: (product) => `شراء ${product.title} في الكويت`, intro: (product) => `دليل طلب ${product.title} في الكويت مع السعر والتوفر وطريقة التوصيل.` },
+  { slug: 'افضل', label: 'أفضل', title: (product) => `أفضل ${product.title} في الكويت`, intro: (product) => `دليل اختيار ${product.title} في الكويت قبل الشراء، مع المواصفات والسعر والتوصيل المحلي.` },
+  { slug: 'احسن', label: 'أحسن', title: (product) => `أحسن ${product.title} في الكويت`, intro: (product) => `معلومات تساعدك على مقارنة واختيار ${product.title} داخل الكويت.` },
+  { slug: 'تجربتي', label: 'تجربتي مع', title: (product) => `تجربتي مع ${product.title} في الكويت`, intro: (product) => `ملخص معلوماتي عن ${product.title} في الكويت وما يجب التحقق منه قبل الطلب والاستخدام.` }
 ];
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemapEntries.join('')}</urlset>\n`;
+
+function seoLandingUrl(product, type) {
+  return `${siteUrl}/${encodeURIComponent(type.slug)}/${encodeURIComponent(product.slug)}`;
+}
+
+function seoLandingContent(product, type) {
+  const currentPrice = `${Number(product.price).toLocaleString('ar-KW')} د.ك`;
+  const productLink = productUrl(product);
+  const common = `<p>السعر المعروض حالياً: <strong>${xmlEscape(currentPrice)}</strong>. التوصيل داخل محافظات الكويت، وتُراجع رسوم الشحن قبل تأكيد الطلب.</p><p><a href="${xmlEscape(productLink)}">عرض صفحة المنتج وطلبه</a></p>`;
+  const typeContent = {
+    'شراء': `<h2>السعر وطريقة الطلب</h2><p>أضف المنتج إلى السلة، ثم أدخل عنوانك ورقم هاتف كويتي بصيغة +965. ستُفتح رسالة واتساب منظمة لمراجعة الطلب قبل الإرسال.</p><h2>التوصيل في الكويت</h2><p>الشحن مجاني لبعض المناطق، بينما تصل رسوم المناطق ذات الخدمة الخاصة إلى 5 د.ك وفق العنوان.</p>`,
+    'افضل': `<h2>كيف تختار المنتج المناسب؟</h2><p>راجع وصف المنتج والصور والتصنيف قبل الطلب، وقارن احتياجك بالسعر والتفاصيل المتاحة في صفحة المنتج.</p><h2>خدمة محلية</h2><p>يقتصر التوصيل على دولة الكويت مع تأكيد العنوان والتوفر قبل الإرسال.</p>`,
+    'احسن': `<h2>نقاط مهمة قبل الشراء</h2><p>تحقق من الاستخدام المناسب والمواصفات الظاهرة في الوصف، ثم راجع السعر الحالي وخيارات التوصيل.</p><h2>بيانات واضحة</h2><p>تظهر الفئة والسعر والحالة في صفحة المنتج، مع سياسة شحن واسترجاع مستقلة للرجوع إليها.</p>`,
+    'تجربتي': `<h2>ماذا تتوقع من المنتج؟</h2><p>هذه صفحة معلومات وليست تقييماً شخصياً مصطنعاً. نعرض مواصفات المنتج ووصفه المتاح لتساعدك على اتخاذ قرار واعٍ.</p><h2>بعد الاستلام</h2><p>راجع التعليمات والمنتج عند الاستلام واحتفظ بالعبوة الأصلية إذا احتجت إلى تقديم طلب استرجاع أو استبدال.</p>`
+  }[type.slug];
+  return `<main class="seo-static" dir="rtl"><nav><a href="${siteUrl}/">الرئيسية</a> ← <a href="${xmlEscape(productLink)}">${xmlEscape(product.title)}</a></nav><article><p>كويت شوب · ${xmlEscape(type.label)} في الكويت</p><h1>${xmlEscape(type.title(product))}</h1><p>${xmlEscape(type.intro(product))}</p><img src="${xmlEscape(product.image)}" alt="${xmlEscape(product.title)}" /><h2>${xmlEscape(product.title)}</h2><p>${xmlEscape(product.description || 'منتج مختار بعناية للتسوق داخل الكويت.')}</p>${common}${typeContent}</article></main>`;
+}
+
+const today = new Date().toISOString().slice(0, 10);
+function urlset(entries) {
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${entries.join('')}</urlset>\n`;
+}
+
+const productSitemapEntries = products.map((product) => `<url><loc>${xmlEscape(productUrl(product))}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`);
+const siteSitemapEntries = [
+  `<url><loc>${siteUrl}/</loc><lastmod>${today}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>`,
+  ...legalPages.map((page) => `<url><loc>${xmlEscape(`${siteUrl}/ar/${page.slug}`)}</loc><lastmod>${today}</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>`)
+];
+const seoSitemapEntries = products.flatMap((product) => seoPageTypes.map((type) => `<url><loc>${xmlEscape(seoLandingUrl(product, type))}</loc><lastmod>${today}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>`));
+await mkdir(join(distPath, 'sitemaps'), { recursive: true });
+await writeFile(join(distPath, 'sitemaps', 'products.xml'), urlset(productSitemapEntries), 'utf8');
+await writeFile(join(distPath, 'sitemaps', 'pages.xml'), urlset(siteSitemapEntries), 'utf8');
+await writeFile(join(distPath, 'sitemaps', 'seo-landings.xml'), urlset(seoSitemapEntries), 'utf8');
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><sitemap><loc>${siteUrl}/sitemaps/pages.xml</loc><lastmod>${today}</lastmod></sitemap><sitemap><loc>${siteUrl}/sitemaps/products.xml</loc><lastmod>${today}</lastmod></sitemap><sitemap><loc>${siteUrl}/sitemaps/seo-landings.xml</loc><lastmod>${today}</lastmod></sitemap></sitemapindex>\n`;
 await writeFile(join(distPath, 'sitemap.xml'), sitemap, 'utf8');
 
 const merchantItems = products.map((product) => `
@@ -79,24 +130,44 @@ for (const product of products) {
   await mkdir(folder, { recursive: true });
   const title = `${product.title} | كويت شوب`;
   const description = product.description.slice(0, 155);
-  const productHtml = baseHtml
-    .replace(/<title>[^<]*<\/title>/i, `<title>${xmlEscape(title)}</title>`)
-    .replace(/<meta name="description" content="[^"]*"\s*\/>/i, `<meta name="description" content="${xmlEscape(description)}" />`)
-    .replace(/<link rel="canonical" href="[^"]*"\s*\/>/i, `<link rel="canonical" href="${xmlEscape(productUrl(product))}" />`)
+  const productHtml = pageMetadata(baseHtml, { title, description, url: productUrl(product), type: 'product', image: product.image })
     .replace('</head>', `<script id="product-jsonld" type="application/ld+json">${JSON.stringify(productSchema(product))}</script></head>`);
   await writeFile(join(folder, 'index.html'), productHtml, 'utf8');
+}
+
+for (const product of products) {
+  for (const type of seoPageTypes) {
+    const folder = join(distPath, type.slug, product.slug);
+    await mkdir(folder, { recursive: true });
+    const pageUrl = seoLandingUrl(product, type);
+    const title = `${type.title(product)} | كويت شوب`;
+    const description = `${type.intro(product)} السعر الحالي ${Number(product.price).toLocaleString('ar-KW')} د.ك.`;
+    const seoSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: type.title(product),
+      description,
+      inLanguage: 'ar-KW',
+      mainEntityOfPage: pageUrl,
+      about: { '@type': 'Product', name: product.title, sku: product.id, category: product.googleProductCategory || product.category, url: productUrl(product) },
+      author: { '@id': organizationId },
+      publisher: { '@id': organizationId },
+      contentLocation: { '@type': 'Country', name: 'Kuwait', identifier: 'KW' }
+    };
+    const seoHtml = pageMetadata(baseHtml, { title, description, url: pageUrl, type: 'article', image: product.image })
+      .replace('<div id="app"></div>', `<div id="app">${seoLandingContent(product, type)}</div>`)
+      .replace('</head>', `<script id="seo-jsonld" type="application/ld+json">${JSON.stringify(seoSchema)}</script></head>`);
+    await writeFile(join(folder, 'index.html'), seoHtml, 'utf8');
+  }
 }
 
 for (const page of legalPages) {
   const folder = join(distPath, 'ar', page.slug);
   await mkdir(folder, { recursive: true });
   const pageUrl = `${siteUrl}/ar/${page.slug}`;
-  const pageHtml = baseHtml
-    .replace(/<title>[^<]*<\/title>/i, `<title>${xmlEscape(`${page.title} | كويت شوب`)}</title>`)
-    .replace(/<meta name="description" content="[^"]*"\s*\/>/i, `<meta name="description" content="${xmlEscape(page.description)}" />`)
-    .replace(/<link rel="canonical" href="[^"]*"\s*\/>/i, `<link rel="canonical" href="${xmlEscape(pageUrl)}" />`)
+  const pageHtml = pageMetadata(baseHtml, { title: `${page.title} | كويت شوب`, description: page.description, url: pageUrl })
     .replace('</head>', `<script id="legal-jsonld" type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'WebPage', name: page.title, description: page.description, url: pageUrl, inLanguage: 'ar-KW' })}</script></head>`);
   await writeFile(join(folder, 'index.html'), pageHtml, 'utf8');
 }
 
-console.log(`Generated SEO pages, legal pages, sitemap, and Merchant feed for ${products.length.toLocaleString('en-US')} products.`);
+console.log(`Generated product pages, ${seoSitemapEntries.length.toLocaleString('en-US')} local SEO landing pages, legal pages, sitemaps, and Merchant feed for ${products.length.toLocaleString('en-US')} products.`);

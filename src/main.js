@@ -52,6 +52,40 @@ function productPath(product) {
   return `/product/${product.slug}`;
 }
 
+function updateSeoMetadata({ title, description, canonical, type = 'website' }) {
+  document.title = title;
+  document.querySelector('meta[name="description"]')?.setAttribute('content', description);
+  document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonical);
+  document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
+  document.querySelector('meta[property="og:description"]')?.setAttribute('content', description);
+  document.querySelector('meta[property="og:url"]')?.setAttribute('content', canonical);
+  document.querySelector('meta[property="og:type"]')?.setAttribute('content', type);
+  document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', title);
+  document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', description);
+}
+
+function productStructuredData(product, description, url) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.title,
+    description,
+    image: [product.image],
+    category: product.googleProductCategory || product.category,
+    sku: product.id,
+    offers: {
+      '@type': 'Offer',
+      url,
+      priceCurrency: 'KWD',
+      price: Number(product.price).toFixed(2),
+      availability: 'https://schema.org/InStock',
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: { '@id': 'https://kuwait-shop.arabsads.shop/#organization' },
+      hasMerchantReturnPolicy: { '@id': 'https://kuwait-shop.arabsads.shop/#return-policy' }
+    }
+  };
+}
+
 const LEGAL_PAGES = {
   privacy: {
     slug: 'privacy-policy',
@@ -140,6 +174,57 @@ const LEGAL_PATHS = Object.fromEntries(Object.entries(LEGAL_PAGES).flatMap(([key
   [`/ar/${key}`, key],
   [`/${page.slug}`, key]
 ]));
+
+const SEO_PAGE_TYPES = {
+  'شراء': {
+    label: 'شراء',
+    title: (product) => `شراء ${product.title} في الكويت`,
+    eyebrow: 'دليل الشراء في الكويت',
+    intro: (product) => `كل ما تحتاجه لطلب ${product.title} داخل الكويت: السعر، التوفر، الشحن وطريقة إتمام الطلب.`,
+    sections: (product) => [
+      ['السعر والتوفر', `سعر ${product.title} حالياً هو ${price(product.price)}، والمنتج متوفر للطلب وفق حالة المخزون المعروضة في المتجر.`],
+      ['طريقة الطلب', 'أضف المنتج إلى السلة، أدخل عنوانك ورقم هاتف كويتي بصيغة +965، ثم راجع تفاصيل الطلب في واتساب قبل الإرسال.'],
+      ['التوصيل داخل الكويت', 'نوصل إلى محافظات الكويت الست. الشحن مجاني لبعض المناطق وتصل رسوم المناطق الخاصة إلى 5 د.ك؛ تظهر التفاصيل قبل تأكيد الطلب.']
+    ]
+  },
+  'افضل': {
+    label: 'أفضل',
+    title: (product) => `أفضل ${product.title} في الكويت`,
+    eyebrow: 'دليل اختيار المنتج',
+    intro: (product) => `دليل مختصر لمن يبحث عن أفضل ${product.title} في الكويت مع مواصفات المنتج وسعره وخيارات التوصيل المحلية.`,
+    sections: (product) => [
+      ['لماذا قد يناسبك هذا المنتج؟', `${product.title} مدرج ضمن تصنيف ${product.category}، ويعرض المتجر وصفه ومواصفاته المتاحة لتساعدك على مقارنة احتياجك قبل الطلب.`],
+      ['قبل الشراء', 'راجع وصف المنتج والصور والسعر، وتأكد من أن الاستخدام والمقاس أو السعة المناسبة مذكورة في التفاصيل قبل إضافة المنتج إلى السلة.'],
+      ['خدمة محلية', 'يتوفر الطلب داخل الكويت فقط مع تأكيد العنوان ورقم الهاتف عبر واتساب، لتبقى تفاصيل التوصيل واضحة قبل الإرسال.']
+    ]
+  },
+  'احسن': {
+    label: 'أحسن',
+    title: (product) => `أحسن ${product.title} في الكويت`,
+    eyebrow: 'مقارنة قبل الطلب',
+    intro: (product) => `صفحة معلومات تساعدك على اختيار أحسن ${product.title} في الكويت بناءً على الوصف والسعر والتوفر والتوصيل.`,
+    sections: (product) => [
+      ['مؤشرات الاختيار', `ابدأ بمراجعة وصف ${product.title}، ثم قارن السعر الحالي ${price(product.price)} مع احتياجك والاستخدام المتوقع.`],
+      ['معلومات المنتج', `ينتمي المنتج إلى ${product.googleProductCategory || product.category}، ويمكن الرجوع إلى صفحة المنتج لرؤية الصور والوصف الكامل.`],
+      ['الطلب الآمن', 'تُرسل تفاصيل السلة والعنوان إلى واتساب للمراجعة قبل الإرسال؛ لا تظهر بيانات بطاقتك داخل نموذج الطلب.']
+    ]
+  },
+  'تجربتي': {
+    label: 'تجربتي مع',
+    title: (product) => `تجربتي مع ${product.title} في الكويت`,
+    eyebrow: 'دليل تجربة المنتج',
+    intro: (product) => `ملخص معلوماتي عن ${product.title} في الكويت يشرح ما ينبغي التحقق منه قبل الشراء والاستخدام.`,
+    sections: (product) => [
+      ['ماذا تتوقع من المنتج؟', `يعرض المتجر ${product.title} ضمن ${product.category} مع وصف وصور المنتج المتاحة من المصدر.`],
+      ['ملاحظات قبل الاستخدام', 'راجع المواصفات والتعليمات المرفقة مع المنتج عند الاستلام، واحتفظ بالعبوة الأصلية إذا احتجت إلى تقديم طلب استرجاع أو استبدال.'],
+      ['تقييمات حقيقية', 'لا ننشر تجارب أو تقييمات منسوبة إلى عملاء دون مصدر. عند توفر تقييمات موثقة، ستظهر في صفحة المنتج بشكل واضح.']
+    ]
+  }
+};
+
+function seoLandingPath(product, type) {
+  return `/${type}/${product.slug}`;
+}
 
 function legalFooterMarkup() {
   return `<div class="footer-links" aria-label="روابط المتجر"><a href="/ar/about-us">نبذة عنا</a><a href="/ar/contact-us">تواصل معنا</a><a href="/ar/privacy-policy">الخصوصية</a><a href="/ar/terms-and-conditions">الشروط والأحكام</a><a href="/ar/refund-policy">الاسترجاع والاسترداد</a><a href="/ar/shipping-policy">الشحن والتوصيل</a></div>`;
@@ -319,13 +404,17 @@ function renderProductPage(product) {
   const description = product.description || 'منتج مختار بعناية لتلبية احتياجاتك اليومية.';
   const related = state.products.filter((item) => item.id !== product.id && item.category === product.category).slice(0, 4);
   const savings = discount(product);
-  document.title = `${product.title} | كويت شوب`;
-  document.querySelector('meta[name="description"]')?.setAttribute('content', `${product.title} — ${description.slice(0, 145)}`);
+  updateSeoMetadata({
+    title: `${product.title} | كويت شوب`,
+    description: `${product.title} — ${description.slice(0, 145)}`,
+    canonical: `https://kuwait-shop.arabsads.shop${productPath(product)}`,
+    type: 'product'
+  });
   document.querySelector('#product-jsonld')?.remove();
   const schemaScript = document.createElement('script');
   schemaScript.id = 'product-jsonld';
   schemaScript.type = 'application/ld+json';
-  schemaScript.textContent = JSON.stringify({ '@context': 'https://schema.org', '@type': 'Product', name: product.title, description, image: [product.image], category: product.googleProductCategory, sku: product.id, offers: { '@type': 'Offer', url: window.location.href, priceCurrency: 'KWD', price: Number(product.price).toFixed(2), availability: 'https://schema.org/InStock', itemCondition: 'https://schema.org/NewCondition', seller: { '@type': 'Organization', name: 'كويت شوب' } } });
+  schemaScript.textContent = JSON.stringify(productStructuredData(product, description, window.location.href));
   document.head.append(schemaScript);
   app.innerHTML = `
     <div class="announcement"><span>🇰🇼</span><b>تسوّق كويتي براحة</b><span>•</span><span>توصيل إلى مختلف مناطق الكويت</span></div>
@@ -356,6 +445,7 @@ function renderProductPage(product) {
         </div>
       </section>
       <section class="product-tabs" id="product-info"><div class="product-tabs-nav" role="tablist"><button class="is-active" data-action="select-product-tab" data-product-tab="description" role="tab">الوصف</button><button data-action="select-product-tab" data-product-tab="shipping" role="tab">الشحن والتوصيل</button><button data-action="select-product-tab" data-product-tab="returns" role="tab">الاسترجاع والاسترداد</button><button data-action="select-product-tab" data-product-tab="information" role="tab">معلومات إضافية</button></div><div class="product-tab-content is-active" data-product-panel="description"><p>${escapeHtml(description)}</p></div><div class="product-tab-content" data-product-panel="shipping"><p>التوصيل متاح داخل دولة الكويت. الشحن مجاني لبعض المناطق، فيما تصل الرسوم إلى 5 د.ك للمناطق ذات الرسوم الخاصة. راجع <a href="/ar/shipping-policy">سياسة الشحن والتوصيل</a> قبل تأكيد الطلب.</p></div><div class="product-tab-content" data-product-panel="returns"><p>يمكنك طلب الاسترجاع أو الاستبدال خلال 14 يوماً من استلام الطلب، بشرط أن يكون المنتج غير مستخدم وفي عبوته الأصلية مع ملحقاته. المنتجات الشخصية أو القابلة للتلف أو المفتوحة لأسباب صحية لا تُقبل إلا عند وجود عيب مصنعي.</p><p>للطلبات التالفة أو غير المطابقة، تواصل معنا مع رقم الطلب وصور واضحة للمنتج. اقرأ <a href="/ar/refund-policy">سياسة الاسترجاع والاسترداد الكاملة</a> قبل تقديم الطلب.</p></div><div class="product-tab-content" data-product-panel="information"><div><span>التصنيف</span><strong>${escapeHtml(product.googleProductCategory || product.category)}</strong></div><div><span>رمز المنتج</span><strong>${escapeHtml(product.id)}</strong></div><div><span>الحالة</span><strong>متوفر في المخزون</strong></div></div></section>
+      <section class="product-seo-guides"><div><p class="eyebrow">أدلة المنتج في الكويت</p><h2>تعرف على ${escapeHtml(product.title)}</h2></div><div>${Object.entries(SEO_PAGE_TYPES).map(([type, page]) => `<a href="${escapeHtml(seoLandingPath(product, type))}" target="_blank" rel="noopener"><span>${page.label}</span><b>${escapeHtml(product.title)}</b><i>←</i></a>`).join('')}</div></section>
       ${related.length ? `<section class="related-section"><div class="section-heading"><div><p class="eyebrow">قد يعجبك أيضاً</p><h2>منتجات من نفس التصنيف</h2></div><a class="text-button dark-text" href="/#products">عرض الكل <span>←</span></a></div><div class="products-grid">${related.map(productCard).join('')}</div></section>` : ''}
     </main>
     <footer><a class="brand" href="/"><span class="brand-mark">ك</span><span><b>كويت</b> شوب<small>لبيتٍ أجمل</small></span></a><p>وجهتك اليومية لمنتجات البيت والحياة في الكويت.</p>${legalFooterMarkup()}${companyFooterMarkup()}<small>© ${new Date().getFullYear()} كويت شوب. جميع الحقوق محفوظة.</small></footer>
@@ -371,11 +461,9 @@ function renderLegalPage(key) {
   const page = LEGAL_PAGES[key];
   if (!page) return render();
   const canonical = `https://kuwait-shop.arabsads.shop/ar/${page.slug}`;
-  document.title = `${page.title} | كويت شوب`;
   document.documentElement.lang = 'ar';
   document.documentElement.dir = 'rtl';
-  document.querySelector('meta[name="description"]')?.setAttribute('content', page.description);
-  document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonical);
+  updateSeoMetadata({ title: `${page.title} | كويت شوب`, description: page.description, canonical });
   document.querySelector('#product-jsonld')?.remove();
   document.querySelector('#legal-jsonld')?.remove();
   const schemaScript = document.createElement('script');
@@ -412,6 +500,44 @@ function renderLegalPage(key) {
     <button class="floating-cart" data-action="open-cart" aria-label="فتح السلة العائمة"><span class="floating-cart-icon">♧</span><span class="floating-cart-copy"><strong>السلة</strong><small id="floating-cart-total">٠ د.ك</small></span><b data-cart-count>0</b></button>
     <dialog id="checkout-dialog" class="checkout-dialog" aria-label="بيانات إتمام الطلب"><button class="dialog-close" data-action="close-checkout" aria-label="إغلاق">×</button><div class="checkout-heading"><p class="eyebrow">خطوة أخيرة</p><h2>أرسل طلبك للمتجر</h2><p>أدخل بيانات التوصيل، وسنفتح لك واتساب برسالة مرتبة بكل المنتجات والتفاصيل.</p></div><form id="checkout-form"><div class="form-grid"><label><span>الاسم الكامل</span><input name="customerName" autocomplete="name" required placeholder="مثال: محمد العتيبي" /></label><label><span>رقم الهاتف</span><input name="customerPhone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+96599077241" /></label></div><label><span>منطقة وعنوان التوصيل</span><input name="address" autocomplete="street-address" required placeholder="مثال: السالمية، قطعة 4، شارع 12، منزل 8" /></label><label><span>ملاحظات إضافية <small>(اختياري)</small></span><textarea name="notes" rows="3" placeholder="وقت مناسب للتوصيل أو أي تفاصيل تساعدنا..."></textarea></label><button class="primary-button full-button" type="submit">فتح واتساب وإرسال الطلب <span>←</span></button><small class="form-note">سيتم فتح محادثة واتساب برسالة جاهزة للمراجعة قبل الإرسال.</small></form></dialog>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>`;
+  renderCart();
+  mountCheckoutFields();
+}
+
+function renderSeoLandingPage(product, type) {
+  const page = SEO_PAGE_TYPES[type];
+  if (!page || !product) return render();
+  const title = `${page.title(product)} | كويت شوب`;
+  const description = `${page.intro(product)} السعر الحالي ${price(product.price)}.`;
+  const canonical = `https://kuwait-shop.arabsads.shop${seoLandingPath(product, type)}`;
+  updateSeoMetadata({ title, description, canonical, type: 'article' });
+  document.querySelector('#product-jsonld')?.remove();
+  document.querySelector('#legal-jsonld')?.remove();
+  document.querySelector('#seo-jsonld')?.remove();
+  const schemaScript = document.createElement('script');
+  schemaScript.id = 'seo-jsonld';
+  schemaScript.type = 'application/ld+json';
+  schemaScript.textContent = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: page.title(product),
+    description,
+    inLanguage: 'ar-KW',
+    mainEntityOfPage: canonical,
+    about: { '@type': 'Product', name: product.title, sku: product.id, category: product.googleProductCategory || product.category, url: `https://kuwait-shop.arabsads.shop${productPath(product)}` },
+    author: { '@id': 'https://kuwait-shop.arabsads.shop/#organization' },
+    publisher: { '@id': 'https://kuwait-shop.arabsads.shop/#organization' },
+    contentLocation: { '@type': 'Country', name: 'Kuwait', identifier: 'KW' }
+  });
+  document.head.append(schemaScript);
+  const sections = page.sections(product).map(([heading, content], index) => `<section><span>${String(index + 1).padStart(2, '0')}</span><div><h2>${heading}</h2><p>${content}</p></div></section>`).join('');
+  app.innerHTML = `
+    <div class="announcement"><span>🇰🇼</span><b>تسوّق كويتي براحة</b><span>•</span><span>توصيل داخل محافظات الكويت</span></div>
+    <header class="site-header"><a href="/" class="brand" aria-label="كويت شوب - الرئيسية"><span class="brand-mark">ك</span><span><b>كويت</b> شوب<small>لبيتٍ أجمل</small></span></a><nav class="main-nav" aria-label="التنقل الرئيسي"><a href="/">الرئيسية</a><a href="/#products">تسوّق</a><a href="/ar/shipping-policy">الشحن</a><a href="/ar/contact-us">تواصل معنا</a></nav><div class="header-actions"><a class="search-trigger" href="/#products" aria-label="بحث">⌕</a><button class="cart-trigger" data-action="open-cart" aria-label="فتح السلة"><span class="bag-icon">♧</span><b data-cart-count>0</b><span>السلة</span></button></div></header>
+    <main class="seo-landing" id="top"><div class="product-breadcrumbs"><a href="/">الرئيسية</a><span>←</span><a href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener">${escapeHtml(product.title)}</a><span>←</span><strong>${page.label}</strong></div><section class="seo-landing-hero"><div><p class="eyebrow">${page.eyebrow} · الكويت</p><h1>${page.title(product)}</h1><p>${page.intro(product)}</p><div class="seo-hero-actions"><a class="primary-button" href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener">عرض المنتج <span>←</span></a><a class="text-button dark-text" href="/ar/shipping-policy">سياسة الشحن <span>←</span></a></div></div><a class="seo-product-summary" href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" /><span>${escapeHtml(product.category)}</span><b>${escapeHtml(product.title)}</b><strong>${price(product.price)}</strong></a></section><article class="seo-guide-content">${sections}</article><section class="seo-guide-cta"><p class="eyebrow">جاهز للطلب؟</p><h2>اطلب ${escapeHtml(product.title)} داخل الكويت</h2><a class="primary-button" href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener">الانتقال لصفحة المنتج <span>←</span></a></section></main>
+    <footer><a class="brand" href="/"><span class="brand-mark">ك</span><span><b>كويت</b> شوب<small>لبيتٍ أجمل</small></span></a><p>وجهتك اليومية لمنتجات البيت والحياة في الكويت.</p>${legalFooterMarkup()}${companyFooterMarkup()}<small>© ${new Date().getFullYear()} كويت شوب. جميع الحقوق محفوظة.</small></footer>
+    <aside id="cart-drawer" class="cart-drawer" aria-label="سلة التسوق" aria-hidden="true"><div class="drawer-header"><div><p class="eyebrow">طلبك المختار</p><h2>سلة التسوق <small data-cart-count>0</small></h2></div><button data-action="close-cart" aria-label="إغلاق السلة">×</button></div><ul id="cart-list"></ul><div class="drawer-footer"><div><span>الإجمالي التقريبي</span><strong id="cart-total"></strong></div><button id="checkout-button" class="primary-button full-button" data-action="checkout">إتمام الطلب <span>←</span></button><small>يتم تأكيد التوصيل والدفع قبل الإرسال.</small></div></aside><div class="drawer-backdrop" id="drawer-backdrop" data-action="close-cart"></div><button class="floating-cart" data-action="open-cart" aria-label="فتح السلة العائمة"><span class="floating-cart-icon">♧</span><span class="floating-cart-copy"><strong>السلة</strong><small id="floating-cart-total">٠ د.ك</small></span><b data-cart-count>0</b></button>
+    <dialog id="checkout-dialog" class="checkout-dialog" aria-label="بيانات إتمام الطلب"><button class="dialog-close" data-action="close-checkout" aria-label="إغلاق">×</button><div class="checkout-heading"><p class="eyebrow">خطوة أخيرة</p><h2>أرسل طلبك للمتجر</h2><p>أدخل بيانات التوصيل، وسنفتح لك واتساب برسالة مرتبة بكل المنتجات والتفاصيل.</p></div><form id="checkout-form"><div class="form-grid"><label><span>الاسم الكامل</span><input name="customerName" autocomplete="name" required placeholder="مثال: محمد العتيبي" /></label><label><span>رقم الهاتف</span><input name="customerPhone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+96599077241" /></label></div><label><span>منطقة وعنوان التوصيل</span><input name="address" autocomplete="street-address" required placeholder="مثال: السالمية، قطعة 4، شارع 12، منزل 8" /></label><label><span>ملاحظات إضافية <small>(اختياري)</small></span><textarea name="notes" rows="3" placeholder="وقت مناسب للتوصيل أو أي تفاصيل تساعدنا..."></textarea></label><button class="primary-button full-button" type="submit">فتح واتساب وإرسال الطلب <span>←</span></button><small class="form-note">سيتم فتح محادثة واتساب برسالة جاهزة للمراجعة قبل الإرسال.</small></form></dialog><div id="toast" class="toast" role="status" aria-live="polite"></div>`;
   renderCart();
   mountCheckoutFields();
 }
@@ -469,7 +595,11 @@ function initHeroSlider() {
 }
 
 function render() {
-  document.title = 'كويت شوب | تسوق داخل الكويت';
+  updateSeoMetadata({
+    title: 'كويت شوب | تسوق داخل الكويت',
+    description: 'كويت شوب — تسوق احتياجاتك اليومية بأسعار مختارة وتوصيل داخل الكويت.',
+    canonical: 'https://kuwait-shop.arabsads.shop/'
+  });
   app.innerHTML = `
     <div class="announcement"><span>🇰🇼</span><b>تسوّق كويتي براحة</b><span>•</span><span>منتجات مختارة لبيتك وحياتك اليومية</span><span>•</span><span>توصيل إلى مختلف مناطق الكويت</span></div>
     <header class="site-header">
@@ -675,10 +805,16 @@ async function start() {
     state.products = await response.json();
     const requestedCategory = new URLSearchParams(window.location.search).get('category');
     if (requestedCategory && state.products.some((product) => product.category === requestedCategory)) state.category = requestedCategory;
-    const legalKey = LEGAL_PATHS[window.location.pathname.replace(/\/$/, '') || '/'];
-    const productRoute = window.location.pathname.match(/^\/product\/(.+)$/);
-    const routedProduct = productRoute ? productBySlug(decodeURIComponent(productRoute[1])) : null;
+    // Browsers percent-encode Arabic URL segments in location.pathname. Decode once
+    // before matching route names, otherwise SEO routes fall through to the home page.
+    const decodedPathname = decodeURIComponent(window.location.pathname);
+    const legalKey = LEGAL_PATHS[decodedPathname.replace(/\/$/, '') || '/'];
+    const seoRoute = decodedPathname.match(/^\/(شراء|افضل|احسن|تجربتي)\/(.+)$/);
+    const seoProduct = seoRoute ? productBySlug(seoRoute[2]) : null;
+    const productRoute = decodedPathname.match(/^\/product\/(.+)$/);
+    const routedProduct = productRoute ? productBySlug(productRoute[1]) : null;
     if (legalKey) renderLegalPage(legalKey);
+    else if (seoProduct) renderSeoLandingPage(seoProduct, seoRoute[1]);
     else if (routedProduct) renderProductPage(routedProduct);
     else render();
   } catch (error) {
