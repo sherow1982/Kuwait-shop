@@ -804,9 +804,22 @@ document.addEventListener('keydown', (event) => { if (event.key === 'Escape') cl
 
 async function start() {
   try {
-    const response = await fetch('/data/products.json');
-    if (!response.ok) throw new Error('Could not load product data');
-    state.products = await response.json();
+    // تحميل الكتالوج الكامل بعد رسم الصفحة لتحسين LCP
+    const featuredPromise = fetch('/data/products-featured.json').then((r) => r.ok ? r.json() : null).catch(() => null);
+    const fullPromise = fetch('/data/products.json').then((r) => { if (!r.ok) throw new Error('Could not load product data'); return r.json(); });
+
+    // عرض أول 12 منتج فوراً إن وُجد الملف الخفيف
+    const featured = await featuredPromise;
+    if (featured && featured.length) {
+      state.products = featured;
+      const decodedPathname = decodeURIComponent(window.location.pathname);
+      const legalKey = LEGAL_PATHS[decodedPathname.replace(/\/$/, '') || '/'];
+      const seoRoute = decodedPathname.match(/^\/(شراء|افضل|احسن|تجربتي)\/(.+)$/);
+      const productRoute = decodedPathname.match(/^\/product\/(.+)$/);
+      if (!legalKey && !seoRoute && !productRoute) { render(); }
+    }
+
+    state.products = await fullPromise;
     const requestedCategory = new URLSearchParams(window.location.search).get('category');
     if (requestedCategory && state.products.some((product) => product.category === requestedCategory)) state.category = requestedCategory;
     // Browsers percent-encode Arabic URL segments in location.pathname. Decode once

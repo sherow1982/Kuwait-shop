@@ -51,14 +51,17 @@ export default function KuwaitShopHome() {
         <meta property="og:description" content="آلاف المنتجات المختارة لبيتك وحياتك اليومية." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://kuwait-shop.arabsads.shop/" />
-        <meta property="og:image" content="https://kuwait-shop.arabsads.shop/brand/kuwait-shop-banner.svg" />
+        <meta property="og:image" content="https://kuwait-shop.arabsads.shop/brand/kuwait-shop-social.png" />
+        <meta property="og:image:secure_url" content="https://kuwait-shop.arabsads.shop/brand/kuwait-shop-social.png" />
+        <meta property="og:image:type" content="image/png" />
         <meta property="og:image:alt" content="كويت شوب - كل ما يحتاجه البيت الكويتي" />
         <meta property="og:locale" content="ar_KW" />
         <meta property="og:site_name" content="كويت شوب" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="كويت شوب | تسوق داخل الكويت" />
         <meta name="twitter:description" content="آلاف المنتجات المختارة لبيتك وحياتك اليومية داخل الكويت." />
-        <meta name="twitter:image" content="https://kuwait-shop.arabsads.shop/brand/kuwait-shop-banner.svg" />
+        <meta name="twitter:image" content="https://kuwait-shop.arabsads.shop/brand/kuwait-shop-social.png" />
+        <meta name="twitter:image:alt" content="كويت شوب - كل ما يحتاجه البيت الكويتي" />
         <link rel="canonical" href="https://kuwait-shop.arabsads.shop/" />
         <link rel="alternate" hrefLang="ar-KW" href="https://kuwait-shop.arabsads.shop/" />
         <link rel="alternate" hrefLang="ar" href="https://kuwait-shop.arabsads.shop/" />

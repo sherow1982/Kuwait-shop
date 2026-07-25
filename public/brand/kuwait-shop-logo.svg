@@ -1,12 +1,15 @@
-<svg width="520" height="152" viewBox="0 0 520 152" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+<svg width="560" height="140" viewBox="0 0 560 140" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
   <title id="title">كويت شوب</title>
-  <desc id="desc">شعار كويت شوب مستوحى من ألوان علم الكويت</desc>
-  <path d="M18 32C18 20.954 26.954 12 38 12H126C137.046 12 146 20.954 146 32V120C146 131.046 137.046 140 126 140H38C26.954 140 18 131.046 18 120V32Z" fill="#111111"/>
-  <path d="M18 42H146V76H18V42Z" fill="white"/>
-  <path d="M18 76H146V110H18V76Z" fill="#007A3D"/>
-  <path d="M18 42L63 76L18 110V42Z" fill="#CE1126"/>
-  <path d="M71 45C78.18 38.437 89.033 35 103.56 35C116.935 35 127.108 38.2 134.08 44.6L125.44 57.56C120.022 52.835 113.094 50.472 104.655 50.472C94.859 50.472 87.459 53.265 82.455 58.85C77.451 64.435 74.949 71.924 74.949 81.317C74.949 90.607 77.451 98.076 82.455 103.725C87.459 109.373 94.859 112.197 104.655 112.197C113.094 112.197 120.022 109.813 125.44 105.045L134.08 118.005C127.108 124.405 116.935 127.605 103.56 127.605C89.033 127.605 78.18 124.168 71 117.295C63.82 110.421 60.23 98.429 60.23 81.317C60.23 64.102 63.82 52.063 71 45Z" fill="#007A3D"/>
-  <circle cx="128" cy="39" r="9" fill="#CE1126"/>
-  <text x="174" y="79" fill="#111111" font-family="Alexandria, Tahoma, Arial, sans-serif" font-size="48" font-weight="800">كويت شوب</text>
-  <text x="177" y="111" fill="#66736E" font-family="Alexandria, Tahoma, Arial, sans-serif" font-size="17" font-weight="600" letter-spacing="1.2">لبيتٍ أجمل · تسوّق كويتي</text>
+  <desc id="desc">كويت شوب، تسوق كويتي بثقة</desc>
+  <g transform="translate(8 10)">
+    <rect width="120" height="120" rx="34" fill="#111111"/>
+    <path d="M19 39C19 27.954 27.954 19 39 19H81C92.046 19 101 27.954 101 39V91C101 102.046 92.046 111 81 111H39C27.954 111 19 102.046 19 91V39Z" fill="#007A3D"/>
+    <path d="M19 52H101V74H19V52Z" fill="white"/>
+    <path d="M19 74H101V96H19V74Z" fill="#CE1126"/>
+    <path d="M19 52L48 74L19 96V52Z" fill="#111111"/>
+    <path d="M50 46C55 40 62 37 71 37C80 37 87 40 92 46L84 57C81 54 77 52 72 52C66 52 62 54 59 57C56 61 55 65 55 72C55 79 56 84 59 87C62 91 66 93 72 93C77 93 81 91 84 88L92 99C87 105 80 108 71 108C62 108 55 105 50 99C45 93 42 84 42 72C42 60 45 52 50 46Z" fill="#F8F4E7"/>
+    <circle cx="91" cy="34" r="7" fill="#CE1126"/>
+  </g>
+  <text x="154" y="70" fill="#111111" font-family="Alexandria, Tahoma, Arial, sans-serif" font-size="48" font-weight="800" letter-spacing="-2">كويت شوب</text>
+  <text x="158" y="103" fill="#65736D" font-family="Alexandria, Tahoma, Arial, sans-serif" font-size="16" font-weight="700" letter-spacing=".5">اختيارات للبيت الكويتي</text>
 </svg>

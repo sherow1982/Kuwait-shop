@@ -1,6 +1,12 @@
 const SITE_URL = 'https://kuwait-shop.arabsads.shop';
 const ORGANIZATION_ID = `${SITE_URL}/#organization`;
 const RETURN_POLICY_ID = `${SITE_URL}/#return-policy`;
+const GOOGLE_VERIFICATION_PATH = '/googlef3dc7a494f07cb5c.html';
+const GOOGLE_VERIFICATION_CONTENT = 'google-site-verification: googlef3dc7a494f07cb5c.html';
+const LEGAL_ROUTE_SEGMENTS = new Set([
+  'privacy-policy', 'terms-and-conditions', 'refund-policy', 'shipping-policy', 'about-us', 'contact-us',
+  'privacy', 'terms', 'returns', 'shipping', 'about', 'contact'
+]);
 
 let productsPromise;
 
@@ -12,6 +18,14 @@ function escapeHtml(value = '') {
 
 function productUrl(product) {
   return `${SITE_URL}/product/${encodeURIComponent(product.slug)}`;
+}
+
+function imageMimeType(imageUrl) {
+  const pathname = imageUrl.split('?')[0].toLowerCase();
+  if (pathname.endsWith('.png')) return 'image/png';
+  if (pathname.endsWith('.webp')) return 'image/webp';
+  if (pathname.endsWith('.gif')) return 'image/gif';
+  return 'image/jpeg';
 }
 
 function price(product) {
@@ -28,6 +42,17 @@ async function getProducts(context) {
       });
   }
   return productsPromise;
+}
+
+async function getIndexResponse(context) {
+  const indexUrl = new URL('/index.html', context.request.url);
+  return context.env.ASSETS.fetch(new Request(indexUrl.toString()));
+}
+
+function isLegalRoute(pathname) {
+  const segments = pathname.split('/').filter(Boolean);
+  if (segments.length === 1) return LEGAL_ROUTE_SEGMENTS.has(segments[0]);
+  return segments.length === 2 && segments[0] === 'ar' && LEGAL_ROUTE_SEGMENTS.has(segments[1]);
 }
 
 function productSchema(product) {
@@ -54,6 +79,7 @@ function productSchema(product) {
 
 function replaceMetadata(html, { title, description, canonical, type, image, schema, body }) {
   const script = `<script type="application/ld+json">${JSON.stringify(schema)}</script>`;
+  const imageType = imageMimeType(image);
   return html
     .replace(/<title>[^<]*<\/title>/i, `<title>${escapeHtml(title)}</title>`)
     .replace(/<meta\b(?=[^>]*\bname="description")[^>]*>/i, `<meta name="description" content="${escapeHtml(description)}" />`)
@@ -63,10 +89,13 @@ function replaceMetadata(html, { title, description, canonical, type, image, sch
     .replace(/<meta\b(?=[^>]*\bproperty="og:url")[^>]*>/i, `<meta property="og:url" content="${escapeHtml(canonical)}" />`)
     .replace(/<meta\b(?=[^>]*\bproperty="og:type")[^>]*>/i, `<meta property="og:type" content="${type}" />`)
     .replace(/<meta\b(?=[^>]*\bproperty="og:image")[^>]*>/i, `<meta property="og:image" content="${escapeHtml(image)}" />`)
+    .replace(/<meta\b(?=[^>]*\bproperty="og:image:secure_url")[^>]*>/i, `<meta property="og:image:secure_url" content="${escapeHtml(image)}" />`)
+    .replace(/<meta\b(?=[^>]*\bproperty="og:image:type")[^>]*>/i, `<meta property="og:image:type" content="${imageType}" />`)
     .replace(/<meta\b(?=[^>]*\bproperty="og:image:alt")[^>]*>/i, `<meta property="og:image:alt" content="${escapeHtml(title)}" />`)
     .replace(/<meta\b(?=[^>]*\bname="twitter:title")[^>]*>/i, `<meta name="twitter:title" content="${escapeHtml(title)}" />`)
     .replace(/<meta\b(?=[^>]*\bname="twitter:description")[^>]*>/i, `<meta name="twitter:description" content="${escapeHtml(description)}" />`)
     .replace(/<meta\b(?=[^>]*\bname="twitter:image")[^>]*>/i, `<meta name="twitter:image" content="${escapeHtml(image)}" />`)
+    .replace(/<meta\b(?=[^>]*\bname="twitter:image:alt")[^>]*>/i, `<meta name="twitter:image:alt" content="${escapeHtml(title)}" />`)
     .replace('<div id="app"></div>', `<div id="app">${body}</div>`)
     .replace('</head>', `${script}</head>`);
 }
@@ -134,17 +163,26 @@ export async function onRequest(context) {
   } catch {
     return context.next();
   }
+  if (pathname === GOOGLE_VERIFICATION_PATH) {
+    return new Response(GOOGLE_VERIFICATION_CONTENT, {
+      headers: {
+        'content-type': 'text/html; charset=UTF-8',
+        'cache-control': 'public, max-age=300'
+      }
+    });
+  }
   const productMatch = pathname.match(/^\/product\/(.+)$/);
   const seoMatch = pathname.match(/^\/(شراء|افضل|احسن|تجربتي)\/(.+)$/);
-  if (!productMatch && !seoMatch) return context.next();
+  if (!productMatch && !seoMatch) {
+    return isLegalRoute(pathname) ? getIndexResponse(context) : context.next();
+  }
 
   const slug = productMatch ? productMatch[1] : seoMatch[2];
   const products = await getProducts(context);
   const product = products.find((item) => item.slug === slug);
   if (!product) return context.next();
 
-  const indexUrl = new URL('/index.html', context.request.url);
-  const indexResponse = await context.env.ASSETS.fetch(new Request(indexUrl.toString()));
+  const indexResponse = await getIndexResponse(context);
   const indexHtml = await indexResponse.text();
   const isProduct = Boolean(productMatch);
   const canonical = isProduct
@@ -167,7 +205,16 @@ export async function onRequest(context) {
   return new Response(html, {
     headers: {
       'content-type': 'text/html; charset=UTF-8',
-      'cache-control': 'public, max-age=0, s-maxage=3600'
+      'cache-control': 'public, max-age=0, s-maxage=3600',
+      'content-security-policy': [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://kuwait-shop.arabsads.shop",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src 'self' https://fonts.gstatic.com",
+        "img-src 'self' data: https://assets.wuiltstore.com https://kuwait-shop.arabsads.shop",
+        "connect-src 'self' https://kuwait-shop.arabsads.shop",
+        "frame-ancestors 'none'"
+      ].join('; ')
     }
   });
 }

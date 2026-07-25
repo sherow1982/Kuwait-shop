@@ -3,6 +3,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://kuwait-shop.arabsads.shop; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://assets.wuiltstore.com https://kuwait-shop.arabsads.shop; connect-src 'self' https://kuwait-shop.arabsads.shop; frame-ancestors 'none'
 
 /data/*
   Cache-Control: public, max-age=86400, s-maxage=604800

@@ -1,38 +1,29 @@
-<svg width="1600" height="640" viewBox="0 0 1600 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">كويت شوب - كل ما يحتاجه البيت الكويتي</title>
-  <desc id="desc">بانر كويتي بألوان العلم للتسوق الإلكتروني</desc>
-  <rect width="1600" height="640" fill="#007A3D"/>
-  <path d="M0 0H1600V41H0V0Z" fill="#111111"/>
-  <path d="M0 41H1600V69H0V41Z" fill="white" fill-opacity="0.88"/>
-  <path d="M1130 -20C1380 56 1516 208 1640 472V680H963C1007 514 1042 342 1130 -20Z" fill="#006632"/>
-  <circle cx="1247" cy="231" r="158" fill="#F9F4DD"/>
-  <circle cx="1247" cy="231" r="125" fill="#E9E0AE"/>
-  <path d="M1083 549C1083 386 1170 305 1280 305C1390 305 1477 386 1477 549H1083Z" fill="#111111"/>
-  <path d="M1128 549C1128 402 1198 341 1280 341C1362 341 1432 402 1432 549H1128Z" fill="#CE1126"/>
-  <path d="M1176 549C1176 425 1222 379 1280 379C1338 379 1384 425 1384 549H1176Z" fill="white"/>
-  <path d="M1222 549C1222 447 1247 418 1280 418C1313 418 1338 447 1338 549H1222Z" fill="#007A3D"/>
-  <g transform="translate(1320 399)">
-    <rect width="190" height="148" rx="17" fill="white"/>
-    <path d="M51 47C51 27.67 66.67 12 86 12H104C123.33 12 139 27.67 139 47" stroke="#111111" stroke-width="12" stroke-linecap="round"/>
-    <path d="M36 45H154L143 123C141.2 135.8 130.24 145 117.31 145H72.69C59.76 145 48.8 135.8 47 123L36 45Z" fill="#007A3D"/>
-    <path d="M36 45H154V72H36V45Z" fill="white"/>
-    <path d="M36 72H154V99H36V72Z" fill="#CE1126"/>
-    <path d="M36 45L72 72L36 99V45Z" fill="#111111"/>
+<svg width="960" height="720" viewBox="0 0 960 720" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">تسوق كويتي بسيط ومميز</title>
+  <desc id="desc">رسم تجريدي لحقائب تسوق ومنتجات منزلية بألوان علم الكويت</desc>
+  <rect width="960" height="720" rx="44" fill="#006C36"/>
+  <circle cx="490" cy="324" r="252" fill="#F6EFD2"/>
+  <circle cx="490" cy="324" r="210" fill="#E7DDAA"/>
+  <path d="M168 700C168 481 307 348 486 348C665 348 804 481 804 700H168Z" fill="#111111"/>
+  <path d="M217 700C217 511 335 395 486 395C637 395 755 511 755 700H217Z" fill="#CE1126"/>
+  <path d="M267 700C267 541 364 441 486 441C608 441 705 541 705 700H267Z" fill="white"/>
+  <path d="M320 700C320 570 391 490 486 490C581 490 652 570 652 700H320Z" fill="#007A3D"/>
+  <g transform="translate(572 116) rotate(10)">
+    <rect width="205" height="236" rx="26" fill="white"/>
+    <path d="M57 80C57 47 84 20 117 20C150 20 177 47 177 80" stroke="#111111" stroke-width="18" stroke-linecap="round"/>
+    <path d="M34 80H171L158 207C156 224 142 236 125 236H80C63 236 49 224 47 207L34 80Z" fill="#007A3D"/>
+    <path d="M34 80H171V123H34V80Z" fill="white"/>
+    <path d="M34 123H171V166H34V123Z" fill="#CE1126"/>
+    <path d="M34 80L83 123L34 166V80Z" fill="#111111"/>
   </g>
-  <g transform="translate(112 132)">
-    <rect width="246" height="52" rx="26" fill="#CE1126"/>
-    <text x="123" y="34" text-anchor="middle" fill="white" font-family="Alexandria, Tahoma, Arial, sans-serif" font-size="20" font-weight="800">تسوّق كويتي براحة</text>
-    <text x="0" y="144" fill="white" font-family="Alexandria, Tahoma, Arial, sans-serif" font-size="72" font-weight="800">كل ما يحتاجه</text>
-    <text x="0" y="231" fill="#F9F4DD" font-family="Alexandria, Tahoma, Arial, sans-serif" font-size="78" font-weight="800">البيت الكويتي.</text>
-    <text x="2" y="290" fill="#D7EDE0" font-family="Alexandria, Tahoma, Arial, sans-serif" font-size="25" font-weight="500">اختيارات يومية · توصيل داخل الكويت · طلب سهل</text>
-    <g transform="translate(0 340)">
-      <rect width="232" height="72" rx="12" fill="white"/>
-      <text x="116" y="45" text-anchor="middle" fill="#111111" font-family="Alexandria, Tahoma, Arial, sans-serif" font-size="22" font-weight="800">اكتشف المنتجات</text>
-    </g>
+  <g transform="translate(110 188)">
+    <rect width="202" height="166" rx="25" fill="#111111" opacity=".96"/>
+    <rect x="21" y="22" width="160" height="122" rx="17" fill="#F8F4E7"/>
+    <path d="M65 54H137V77H65V54Z" fill="#007A3D"/>
+    <path d="M65 77H137V100H65V77Z" fill="#CE1126"/>
+    <path d="M65 54L96 77L65 100V54Z" fill="#111111"/>
+    <circle cx="149" cy="48" r="14" fill="#CE1126"/>
   </g>
-  <g transform="translate(112 506)">
-    <rect width="65" height="8" rx="4" fill="#CE1126"/>
-    <rect x="79" width="65" height="8" rx="4" fill="white"/>
-    <rect x="158" width="65" height="8" rx="4" fill="#111111"/>
-  </g>
+  <path d="M67 101C109 58 164 37 232 37" stroke="white" stroke-width="13" stroke-linecap="round" stroke-dasharray="3 27" opacity=".75"/>
+  <path d="M740 568C786 548 830 557 874 594" stroke="white" stroke-width="13" stroke-linecap="round" stroke-dasharray="3 27" opacity=".75"/>
 </svg>

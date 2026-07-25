@@ -69,15 +69,15 @@ function slugify(value) {
 }
 
 const GOOGLE_TAXONOMY = [
-  { test: /سيارة|سيارات|car|auto|تلميع|معطر.*سيار/iu, id: '2895', path: 'Vehicles & Parts > Vehicle Parts & Accessories > Vehicle Maintenance, Care & Decor > Vehicle Cleaning', label: 'السيارات وملحقاتها' },
-  { test: /كاميرا|مراقبة|camera|surveillance|واي فاي|wifi/iu, id: '362', path: 'Cameras & Optics > Cameras > Surveillance Cameras', label: 'الكاميرات والبصريات' },
-  { test: /تلوين|رسم|ألوان|فن|craft|paint|art/iu, id: '505370', path: 'Arts & Entertainment > Hobbies & Creative Arts > Arts & Crafts > Art & Craft Kits', label: 'الفنون والهوايات' },
-  { test: /لعبة|العاب|أطفال|اطفال|طفل|دمية|تسلية|toy|doll|kids/iu, id: '1239', path: 'Toys & Games', label: 'الألعاب والهوايات' },
-  { test: /مساج|تدليك|تدفئة|صحة|سيرم|كولاجين|بشرة|جمال|عناية|كريم|serum|beauty|skin|massage|heat/iu, id: '469', path: 'Health & Beauty', label: 'الصحة والجمال' },
-  { test: /ملابس|مشد|حقيبة|شنطة|إكسسوار|اكسسوار|ملابس|shapewear|clothing|bag/iu, id: '166', path: 'Apparel & Accessories', label: 'الملابس والإكسسوارات' },
-  { test: /طنجرة|طبخ|مطبخ|فرن|مفرمة|غسالة.*فاكه|ترمس|سكاكين|مكبس|موقد|kitchen|cook|oven/iu, id: '6070', path: 'Home & Garden > Kitchen & Dining > Cookware & Bakeware', label: 'المطبخ والأدوات المنزلية' },
-  { test: /مروحة|مصباح|إضاءة|led|شاحن|usb|مكبر|جرس|منفاخ|إلكترون|الكترون|جهاز|lamp|charger|speaker|fan|electronics/iu, id: '222', path: 'Electronics', label: 'الإلكترونيات' },
-  { test: /رياضة|حقيبة ظهر|تمرين|لياقة|sports|fitness/iu, id: '988', path: 'Sporting Goods', label: 'الرياضة واللياقة' },
+  { test: /سيارة|سيارات|car|auto|تلميع|معطر.*سيار|شمع.*سيار|منظف.*سيار|شريط.*ليد.*سيار|محول.*فولت/iu, id: '2895', path: 'Vehicles & Parts > Vehicle Parts & Accessories > Vehicle Maintenance, Care & Decor > Vehicle Cleaning', label: 'السيارات وملحقاتها' },
+  { test: /كاميرا|مراقبة|camera|surveillance|واي فاي.*كاميرا|جرس.*باب.*كاميرا/iu, id: '362', path: 'Cameras & Optics > Cameras > Surveillance Cameras', label: 'الكاميرات والبصريات' },
+  { test: /تلوين|رسم.*مضيئ|ألوان.*أطفال|craft|paint.*art/iu, id: '505370', path: 'Arts & Entertainment > Hobbies & Creative Arts > Arts & Crafts > Art & Craft Kits', label: 'الفنون والهوايات' },
+  { test: /لعبة|العاب|دمية|تسلية|toy|doll|حصالة|فقاعات/iu, id: '1239', path: 'Toys & Games', label: 'الألعاب والهوايات' },
+  { test: /مساج|تدليك|تدفئة.*جسم|سيرم|كولاجين|بشرة|جمال|عناية.*بشرة|كريم.*وجه|كريم.*يدين|كريم.*شعر|شامبو|ماكينة.*حلاقة.*نسائية|serum|beauty|skin|massage/iu, id: '469', path: 'Health & Beauty', label: 'الصحة والجمال' },
+  { test: /ملابس|مشد.*جسم|حقيبة.*ظهر.*رياضية|شنطة.*ملابس|خزانة.*ملابس|شماعة.*ملابس|رف.*شد.*خزانة|shapewear|clothing/iu, id: '166', path: 'Apparel & Accessories', label: 'الملابس والإكسسوارات' },
+  { test: /طنجرة|طبخ|مطبخ|فرن|مفرمة|غسالة.*فاكه|ترمس|سكاكين|مكبس|موقد|قدور|خلاط.*طعام|محضر.*طعام|قطاعة.*خضار|قطاعة.*بطاطس|خلاط.*يدوي|رف.*تجفيف.*أطباق|منظم.*سكاكين|منظم.*مطبخ|ولاعة.*مطبخ|خرطوم.*مطبخ|kitchen|cook|oven/iu, id: '6070', path: 'Home & Garden > Kitchen & Dining > Cookware & Bakeware', label: 'المطبخ والأدوات المنزلية' },
+  { test: /مروحة|مصباح|إضاءة|led|شاحن|مكبر.*صوت|جرس.*باب|منفاخ.*هواء|إلكترون|الكترون|بخاخ.*طلاء|مشترك.*كهرباء|شريط.*ليد|lamp|charger|speaker|fan|electronics/iu, id: '222', path: 'Electronics', label: 'الإلكترونيات' },
+  { test: /رياضة|تمرين|لياقة|sports|fitness/iu, id: '988', path: 'Sporting Goods', label: 'الرياضة واللياقة' },
   { test: /مكتب|قرطاسية|office|stationery/iu, id: '922', path: 'Office Supplies', label: 'مستلزمات المكتب' },
   { test: /حيوان|قط|كلب|pet|cat|dog/iu, id: '1', path: 'Animals & Pet Supplies', label: 'الحيوانات الأليفة' }
 ];

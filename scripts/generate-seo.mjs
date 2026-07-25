@@ -4,6 +4,16 @@ import { join, resolve } from 'node:path';
 const siteUrl = 'https://kuwait-shop.arabsads.shop';
 const publicPath = resolve('public');
 const products = JSON.parse(await readFile(join(publicPath, 'data', 'products.json'), 'utf8'));
+const featuredProducts = products.slice(0, 12).map((product) => ({
+  id: product.id,
+  title: product.title,
+  slug: product.slug,
+  price: product.price,
+  original: product.original,
+  category: product.category,
+  image: product.image,
+  shipping: product.shipping
+}));
 
 function xmlEscape(value = '') {
   return String(value).replace(/[<>&'"]/g, (character) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[character]));
@@ -34,6 +44,7 @@ const siteSitemapEntries = [
 const seoSitemapEntries = products.flatMap((product) => seoTypes.map((type) => `<url><loc>${xmlEscape(`${siteUrl}/${encodeURIComponent(type)}/${encodeURIComponent(product.slug)}`)}</loc><lastmod>${today}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>`));
 
 await mkdir(join(publicPath, 'sitemaps'), { recursive: true });
+await writeFile(join(publicPath, 'data', 'products-featured.json'), `${JSON.stringify(featuredProducts)}\n`, 'utf8');
 await writeFile(join(publicPath, 'sitemaps', 'products.xml'), urlset(productSitemapEntries), 'utf8');
 await writeFile(join(publicPath, 'sitemaps', 'pages.xml'), urlset(siteSitemapEntries), 'utf8');
 await writeFile(join(publicPath, 'sitemaps', 'seo-landings.xml'), urlset(seoSitemapEntries), 'utf8');
@@ -61,4 +72,4 @@ await writeFile(join(publicPath, 'feeds', 'google-merchant.xml'), merchantFeed, 
 const llms = `# كويت شوب\n\n> متجر إلكتروني كويتي لمنتجات المنزل والحياة اليومية.\n\n- الموقع: ${siteUrl}\n- اللغة: العربية (الكويت)\n- العملة: الدينار الكويتي (KWD)\n- منطقة الخدمة: دولة الكويت\n- كتالوج Google Merchant Center: ${siteUrl}/feeds/google-merchant.xml\n- خريطة الموقع: ${siteUrl}/sitemap.xml\n`;
 await writeFile(join(publicPath, 'llms.txt'), llms, 'utf8');
 
-console.log(`Generated public SEO artifacts for ${products.length.toLocaleString('en-US')} products and ${seoSitemapEntries.length.toLocaleString('en-US')} dynamic local SEO URLs.`);
+console.log(`Generated public SEO artifacts, a lightweight ${featuredProducts.length}-product storefront payload, and ${seoSitemapEntries.length.toLocaleString('en-US')} dynamic local SEO URLs.`);

@@ -11,6 +11,9 @@ export default function Document() {
         <meta name="geo.placename" content="Kuwait" />
         <meta name="geo.position" content="29.3759;47.9774" />
         <meta name="ICBM" content="29.3759, 47.9774" />
+        <link rel="icon" href="/brand/kuwait-shop-mark.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/brand/kuwait-shop-mark.svg" />
+        <link rel="manifest" href="/site.webmanifest" />
         <link rel="preconnect" href="https://assets.wuiltstore.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

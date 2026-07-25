@@ -7,8 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "preview": "wrangler pages dev out --port 4173",
+    "generate:brand": "node scripts/generate-brand-social.mjs",
     "generate:seo": "node scripts/generate-seo.mjs",
-    "import:products": "node scripts/import-products.mjs"
+    "import:products": "node scripts/import-products.mjs && node scripts/generate-seo.mjs"
   },
   "engines": {
     "node": ">=20.19.0"
