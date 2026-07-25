@@ -4,15 +4,18 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && node scripts/generate-seo.mjs",
-    "preview": "vite preview",
+    "dev": "next dev",
+    "build": "next build",
+    "preview": "npx serve out",
+    "generate:seo": "node scripts/generate-seo.mjs",
     "import:products": "node scripts/import-products.mjs"
   },
   "engines": {
     "node": ">=20.19.0"
   },
-  "devDependencies": {
-    "vite": "^7.3.1"
+  "dependencies": {
+    "next": "^16.2.11",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   }
 }

@@ -1,4 +1,4 @@
-import './styles.css';
+export function mountStore() {
 
 const state = {
   products: [],
@@ -823,4 +823,5 @@ async function start() {
   }
 }
 
-start();
+  start();
+}
