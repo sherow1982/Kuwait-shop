@@ -1,10 +1,24 @@
 # كويت شوب
 
-> متجر إلكتروني كويتي لمنتجات المنزل والحياة اليومية.
+> متجر إلكتروني كويتي لمنتجات المنزل والحياة اليومية، يخدم دولة الكويت بالكامل.
+
+## معلومات المتجر
 
 - الموقع: https://kuwait-shop.arabsads.shop
 - اللغة: العربية (الكويت)
 - العملة: الدينار الكويتي (KWD)
-- منطقة الخدمة: دولة الكويت
-- كتالوج Google Merchant Center: https://kuwait-shop.arabsads.shop/feeds/google-merchant.xml
+- منطقة الخدمة: دولة الكويت (المحافظات الست)
+- التواصل: https://wa.me/201110760081
+
+## الموارد
+
 - خريطة الموقع: https://kuwait-shop.arabsads.shop/sitemap.xml
+- كتالوج Google Merchant: https://kuwait-shop.arabsads.shop/feeds/google-merchant.xml
+- سياسة الخصوصية: https://kuwait-shop.arabsads.shop/ar/privacy-policy
+- الشروط والأحكام: https://kuwait-shop.arabsads.shop/ar/terms-and-conditions
+- سياسة الشحن: https://kuwait-shop.arabsads.shop/ar/shipping-policy
+- سياسة الاسترجاع: https://kuwait-shop.arabsads.shop/ar/refund-policy
+
+## الوصف
+
+كويت شوب وجهة تسوق إلكترونية عربية تجمع منتجات عملية ومتنوعة للبيت والحياة اليومية. الطلبات عبر واتساب مع توصيل داخل محافظات الكويت.

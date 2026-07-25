@@ -335,9 +335,9 @@ function productCard(product) {
       <a class="product-image" href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener" aria-label="عرض ${escapeHtml(product.title)}">
         <span class="product-badge product-badge-new">جديد</span>
         ${savings ? `<span class="discount-badge">−${savings}%</span>` : ''}
-        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" loading="lazy" decoding="async" onerror="this.classList.add('image-failed'); this.alt='صورة المنتج غير متاحة';" />
+        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" loading="lazy" decoding="async" width="400" height="400" onerror="this.classList.add('image-failed'); this.alt='صورة المنتج غير متاحة';" />
       </a>
-      <div class="product-hover-actions"><button data-action="open-product" data-product-id="${escapeHtml(product.id)}" aria-label="معاينة سريعة"><span aria-hidden="true">⌕</span></button><button data-action="toggle-wishlist" data-product-id="${escapeHtml(product.id)}" aria-label="إضافة للمفضلة"><span aria-hidden="true">♡</span></button></div>
+      <div class="product-hover-actions"><button data-action="open-product" data-product-id="${escapeHtml(product.id)}" aria-label="معاينة سريعة لـ ${escapeHtml(product.title)}"><span aria-hidden="true">⌕</span></button><button data-action="toggle-wishlist" data-product-id="${escapeHtml(product.id)}" aria-label="إضافة ${escapeHtml(product.title)} للمفضلة"><span aria-hidden="true">♡</span></button></div>
       <div class="product-content">
         <button class="category-label" data-action="set-category" data-category="${escapeHtml(product.category)}">${escapeHtml(product.category)}</button>
         <h3><a href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener">${escapeHtml(product.title)}</a></h3>
@@ -431,8 +431,8 @@ function renderProductPage(product) {
       <div class="product-breadcrumbs"><a href="/">الرئيسية</a><span>←</span><a href="/#products">${escapeHtml(product.category)}</a><span>←</span><strong>${escapeHtml(product.title)}</strong></div>
       <section class="product-detail woodmart-product-layout">
         <div class="product-gallery">
-          <div class="gallery-thumbs" aria-label="صور المنتج"><button class="is-active" aria-label="الصورة الرئيسية"><img src="${escapeHtml(product.image)}" alt="" /></button></div>
-          <div class="product-detail-image"><span class="kuwait-stamp">اختيار كويتي</span>${savings ? `<span class="detail-sale-badge">−${discount(product)}%</span>` : ''}<img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" /></div>
+          <div class="gallery-thumbs" aria-label="صور المنتج"><button class="is-active" aria-label="الصورة الرئيسية لـ ${escapeHtml(product.title)}"><img src="${escapeHtml(product.image)}" alt="" width="80" height="80" /></button></div>
+          <div class="product-detail-image"><span class="kuwait-stamp" aria-hidden="true">اختيار كويتي</span>${savings ? `<span class="detail-sale-badge" aria-hidden="true">−${discount(product)}%</span>` : ''}<img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" width="600" height="600" /></div>
         </div>
         <div class="product-detail-copy product-summary">
           <a class="product-category-link" href="/#products">${escapeHtml(product.category)}</a>
@@ -443,7 +443,7 @@ function renderProductPage(product) {
           <p class="product-short-description">${escapeHtml(description)}</p>
           <ul class="product-facts"><li><span>التوفر</span><b><i></i> متوفر في المخزون</b></li><li><span>التصنيف</span><b>${escapeHtml(product.category)}</b></li><li><span>التوصيل</span><b>داخل محافظات الكويت</b></li></ul>
           <div class="shipping-note">✦ ${escapeHtml(product.shipping || 'الشحن مجاني لبعض المناطق، وتصل الرسوم إلى 5 د.ك حسب المنطقة.')}</div>
-          <div class="detail-actions"><div class="detail-quantity" aria-label="كمية المنتج"><button data-action="detail-quantity-change" data-delta="-1" aria-label="تقليل الكمية">−</button><input id="detail-quantity" value="1" type="number" min="1" inputmode="numeric" aria-label="الكمية" /><button data-action="detail-quantity-change" data-delta="1" aria-label="زيادة الكمية">+</button></div><button class="primary-button detail-add-button" data-action="add-cart" data-detail-quantity="true" data-product-id="${escapeHtml(product.id)}">أضف إلى السلة <span>←</span></button></div>
+          <div class="detail-actions"><div class="detail-quantity" role="group" aria-label="كمية المنتج"><button data-action="detail-quantity-change" data-delta="-1" aria-label="تقليل الكمية">−</button><input id="detail-quantity" value="1" type="number" min="1" inputmode="numeric" aria-label="الكمية" /><button data-action="detail-quantity-change" data-delta="1" aria-label="زيادة الكمية">+</button></div><button class="primary-button detail-add-button" data-action="add-cart" data-detail-quantity="true" data-product-id="${escapeHtml(product.id)}">أضف إلى السلة <span aria-hidden="true">←</span></button></div>
           <button class="whatsapp-product-button full-whatsapp-button" data-action="product-whatsapp" data-product-id="${escapeHtml(product.id)}"><span>◉</span> اطلب هذا المنتج عبر واتساب</button>
           <div class="detail-trust"><span>✓ دفع وتأكيد آمن</span><span>✓ توصيل محلي</span><span>✓ دعم عبر واتساب</span></div>
         </div>
@@ -573,7 +573,7 @@ function featuredSliderMarkup() {
   const slides = state.products.slice(0, 3);
   if (!slides.length) return '';
   return `<section class="featured-slider" aria-label="اختيارات كويت شوب المميزة" data-slider-index="0">
-    <div class="slider-orbit orbit-one"></div><div class="slider-orbit orbit-two"></div>
+    <div class="slider-orbit orbit-one" aria-hidden="true"></div><div class="slider-orbit orbit-two" aria-hidden="true"></div>
     <div class="slider-copy"><p class="eyebrow">اختيارات المحرر</p><h2>تفاصيل صغيرة،<br /><em>فرق كبير في يومك.</em></h2><p>منتجات عملية مختارة بعناية لتضيف لمسة أجمل وأسهل إلى بيتك وحياتك.</p><a class="light-button" href="#products">استكشف المنتجات <span>←</span></a></div>
     <div class="slider-stage">${slides.map((product, index) => `<article class="slider-slide ${index === 0 ? 'is-active' : ''}" data-slide="${index}"><div class="slider-product-image"><span>${String(index + 1).padStart(2, '0')}</span><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" loading="lazy" /></div><div class="slider-product-copy"><small>${escapeHtml(product.category)}</small><h3>${escapeHtml(product.title)}</h3><strong>${price(product.price)}</strong><a href="${productPath(product)}" target="_blank" rel="noopener">شاهد التفاصيل <span>←</span></a></div></article>`).join('')}</div>
     <div class="slider-controls"><button type="button" data-action="slider-prev" aria-label="العنصر السابق">→</button><div>${slides.map((_, index) => `<button type="button" class="${index === 0 ? 'is-active' : ''}" data-action="slider-go" data-slide-index="${index}" aria-label="انتقل إلى الشريحة ${index + 1}"></button>`).join('')}</div><button type="button" data-action="slider-next" aria-label="العنصر التالي">←</button></div>

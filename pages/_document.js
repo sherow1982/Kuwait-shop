@@ -17,7 +17,8 @@ export default function Document() {
         <link rel="preconnect" href="https://assets.wuiltstore.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&display=swap" as="style" onLoad="this.onload=null;this.rel='stylesheet'" />
+        <noscript><link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&display=swap" rel="stylesheet" /></noscript>
       </Head>
       <body>
         <Main />
