@@ -127,7 +127,13 @@ function seoSchema(product, seoType, canonical, description) {
 }
 
 export async function onRequest(context) {
-  const pathname = decodeURIComponent(new URL(context.request.url).pathname).replace(/\/$/, '') || '/';
+  if (!['GET', 'HEAD'].includes(context.request.method)) return context.next();
+  let pathname;
+  try {
+    pathname = decodeURIComponent(new URL(context.request.url).pathname).replace(/\/$/, '') || '/';
+  } catch {
+    return context.next();
+  }
   const productMatch = pathname.match(/^\/product\/(.+)$/);
   const seoMatch = pathname.match(/^\/(شراء|افضل|احسن|تجربتي)\/(.+)$/);
   if (!productMatch && !seoMatch) return context.next();

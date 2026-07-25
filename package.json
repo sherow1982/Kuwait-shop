@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "preview": "npx serve out",
+    "preview": "wrangler pages dev out --port 4173",
     "generate:seo": "node scripts/generate-seo.mjs",
     "import:products": "node scripts/import-products.mjs"
   },
@@ -17,5 +17,8 @@
     "next": "^16.2.11",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "wrangler": "^4.67.0"
   }
 }

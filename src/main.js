@@ -1,4 +1,8 @@
+let storeMounted = false;
+
 export function mountStore() {
+  if (storeMounted) return;
+  storeMounted = true;
 
 const state = {
   products: [],
