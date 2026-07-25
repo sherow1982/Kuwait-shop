@@ -1,0 +1,167 @@
+const SITE_URL = 'https://kuwait-shop.arabsads.shop';
+const ORGANIZATION_ID = `${SITE_URL}/#organization`;
+const RETURN_POLICY_ID = `${SITE_URL}/#return-policy`;
+
+let productsPromise;
+
+function escapeHtml(value = '') {
+  return String(value).replace(/[&<>'"]/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  }[character]));
+}
+
+function productUrl(product) {
+  return `${SITE_URL}/product/${encodeURIComponent(product.slug)}`;
+}
+
+function price(product) {
+  return `${new Intl.NumberFormat('ar-KW', { maximumFractionDigits: 0 }).format(Number(product.price))} د.ك`;
+}
+
+async function getProducts(context) {
+  if (!productsPromise) {
+    const dataUrl = new URL('/data/products.json', context.request.url);
+    productsPromise = context.env.ASSETS.fetch(new Request(dataUrl.toString()))
+      .then((response) => {
+        if (!response.ok) throw new Error('Unable to read the product catalog.');
+        return response.json();
+      });
+  }
+  return productsPromise;
+}
+
+function productSchema(product) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.title,
+    description: product.description || 'منتج مختار بعناية للتسوق داخل الكويت.',
+    image: [product.image],
+    category: product.googleProductCategory || product.category,
+    sku: product.id,
+    offers: {
+      '@type': 'Offer',
+      url: productUrl(product),
+      priceCurrency: 'KWD',
+      price: Number(product.price).toFixed(2),
+      availability: 'https://schema.org/InStock',
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: { '@id': ORGANIZATION_ID },
+      hasMerchantReturnPolicy: { '@id': RETURN_POLICY_ID }
+    }
+  };
+}
+
+function replaceMetadata(html, { title, description, canonical, type, image, schema, body }) {
+  const script = `<script type="application/ld+json">${JSON.stringify(schema)}</script>`;
+  return html
+    .replace(/<title>[^<]*<\/title>/i, `<title>${escapeHtml(title)}</title>`)
+    .replace(/<meta name="description" content="[^"]*"\s*\/>/i, `<meta name="description" content="${escapeHtml(description)}" />`)
+    .replace(/<link rel="canonical" href="[^"]*"\s*\/>/i, `<link rel="canonical" href="${escapeHtml(canonical)}" />`)
+    .replace(/<meta property="og:title" content="[^"]*"\s*\/>/i, `<meta property="og:title" content="${escapeHtml(title)}" />`)
+    .replace(/<meta property="og:description" content="[^"]*"\s*\/>/i, `<meta property="og:description" content="${escapeHtml(description)}" />`)
+    .replace(/<meta property="og:url" content="[^"]*"\s*\/>/i, `<meta property="og:url" content="${escapeHtml(canonical)}" />`)
+    .replace(/<meta property="og:type" content="[^"]*"\s*\/>/i, `<meta property="og:type" content="${type}" />`)
+    .replace(/<meta property="og:image" content="[^"]*"\s*\/>/i, `<meta property="og:image" content="${escapeHtml(image)}" />`)
+    .replace(/<meta property="og:image:alt" content="[^"]*"\s*\/>/i, `<meta property="og:image:alt" content="${escapeHtml(title)}" />`)
+    .replace(/<meta name="twitter:title" content="[^"]*"\s*\/>/i, `<meta name="twitter:title" content="${escapeHtml(title)}" />`)
+    .replace(/<meta name="twitter:description" content="[^"]*"\s*\/>/i, `<meta name="twitter:description" content="${escapeHtml(description)}" />`)
+    .replace(/<meta name="twitter:image" content="[^"]*"\s*\/>/i, `<meta name="twitter:image" content="${escapeHtml(image)}" />`)
+    .replace('<div id="app"></div>', `<div id="app">${body}</div>`)
+    .replace('</head>', `${script}</head>`);
+}
+
+function productFallback(product) {
+  const title = escapeHtml(product.title);
+  const description = escapeHtml(product.description || 'منتج مختار بعناية للتسوق داخل الكويت.');
+  return `<main class="seo-static" dir="rtl"><nav><a href="/">الرئيسية</a> ← <strong>${title}</strong></nav><article><p>كويت شوب · منتج متوفر داخل الكويت</p><h1>${title}</h1><img src="${escapeHtml(product.image)}" alt="${title}" /><p>${description}</p><p>السعر الحالي: <strong>${escapeHtml(price(product))}</strong></p><p>التوصيل داخل دولة الكويت، والشحن مجاني لبعض المناطق وتصل رسوم المناطق الخاصة إلى 5 د.ك.</p><p><a href="/ar/shipping-policy">سياسة الشحن والتوصيل</a> · <a href="/ar/refund-policy">سياسة الاسترجاع</a></p></article></main>`;
+}
+
+const SEO_TYPES = {
+  'شراء': {
+    label: 'شراء',
+    title: (product) => `شراء ${product.title} في الكويت`,
+    intro: (product) => `دليل طلب ${product.title} في الكويت مع السعر والتوفر وطريقة التوصيل.`,
+    section: 'أضف المنتج إلى السلة، ثم أدخل عنوانك ورقم هاتف كويتي بصيغة +965 لمراجعة الطلب قبل الإرسال.'
+  },
+  'افضل': {
+    label: 'أفضل',
+    title: (product) => `أفضل ${product.title} في الكويت`,
+    intro: (product) => `دليل اختيار ${product.title} في الكويت قبل الشراء، مع المواصفات والسعر والتوصيل المحلي.`,
+    section: 'راجع الوصف والصور والتصنيف، ثم قارن احتياجك بالسعر والتفاصيل الظاهرة في صفحة المنتج.'
+  },
+  'احسن': {
+    label: 'أحسن',
+    title: (product) => `أحسن ${product.title} في الكويت`,
+    intro: (product) => `معلومات تساعدك على مقارنة واختيار ${product.title} داخل الكويت.`,
+    section: 'تحقق من الاستخدام المناسب والمواصفات والسعر الحالي قبل إرسال طلبك.'
+  },
+  'تجربتي': {
+    label: 'تجربتي مع',
+    title: (product) => `تجربتي مع ${product.title} في الكويت`,
+    intro: (product) => `ملخص معلوماتي عن ${product.title} في الكويت وما يجب التحقق منه قبل الطلب والاستخدام.`,
+    section: 'هذه صفحة معلومات وليست مراجعة شخصية مصطنعة؛ نعتمد على وصف المنتج وبياناته لمساعدتك على قرار واعٍ.'
+  }
+};
+
+function seoFallback(product, seoType) {
+  const page = SEO_TYPES[seoType];
+  const title = escapeHtml(page.title(product));
+  const productTitle = escapeHtml(product.title);
+  return `<main class="seo-static" dir="rtl"><nav><a href="/">الرئيسية</a> ← <a href="/product/${encodeURIComponent(product.slug)}">${productTitle}</a> ← <strong>${escapeHtml(page.label)}</strong></nav><article><p>كويت شوب · ${escapeHtml(page.label)} في الكويت</p><h1>${title}</h1><img src="${escapeHtml(product.image)}" alt="${productTitle}" /><p>${escapeHtml(page.intro(product))}</p><h2>${productTitle}</h2><p>${escapeHtml(product.description || 'منتج مختار بعناية للتسوق داخل الكويت.')}</p><p>السعر الحالي: <strong>${escapeHtml(price(product))}</strong></p><h2>معلومة قبل الطلب</h2><p>${escapeHtml(page.section)}</p><p>الشحن مجاني لبعض المناطق وتصل رسوم المناطق الخاصة إلى 5 د.ك حسب العنوان. راجع <a href="/ar/shipping-policy">سياسة الشحن والتوصيل</a>.</p></article></main>`;
+}
+
+function seoSchema(product, seoType, canonical, description) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: SEO_TYPES[seoType].title(product),
+    description,
+    inLanguage: 'ar-KW',
+    mainEntityOfPage: canonical,
+    about: { '@type': 'Product', name: product.title, sku: product.id, category: product.googleProductCategory || product.category, url: productUrl(product) },
+    author: { '@id': ORGANIZATION_ID },
+    publisher: { '@id': ORGANIZATION_ID },
+    contentLocation: { '@type': 'Country', name: 'Kuwait', identifier: 'KW' }
+  };
+}
+
+export async function onRequest(context) {
+  const pathname = decodeURIComponent(new URL(context.request.url).pathname).replace(/\/$/, '') || '/';
+  const productMatch = pathname.match(/^\/product\/(.+)$/);
+  const seoMatch = pathname.match(/^\/(شراء|افضل|احسن|تجربتي)\/(.+)$/);
+  if (!productMatch && !seoMatch) return context.next();
+
+  const slug = productMatch ? productMatch[1] : seoMatch[2];
+  const products = await getProducts(context);
+  const product = products.find((item) => item.slug === slug);
+  if (!product) return context.next();
+
+  const indexUrl = new URL('/index.html', context.request.url);
+  const indexResponse = await context.env.ASSETS.fetch(new Request(indexUrl.toString()));
+  const indexHtml = await indexResponse.text();
+  const isProduct = Boolean(productMatch);
+  const canonical = isProduct
+    ? productUrl(product)
+    : `${SITE_URL}/${encodeURIComponent(seoMatch[1])}/${encodeURIComponent(product.slug)}`;
+  const title = isProduct ? `${product.title} | كويت شوب` : `${SEO_TYPES[seoMatch[1]].title(product)} | كويت شوب`;
+  const description = isProduct
+    ? `${product.title} — ${(product.description || 'منتج مختار بعناية للتسوق داخل الكويت.').slice(0, 145)}`
+    : `${SEO_TYPES[seoMatch[1]].intro(product)} السعر الحالي ${price(product)}.`;
+  const html = replaceMetadata(indexHtml, {
+    title,
+    description,
+    canonical,
+    type: isProduct ? 'product' : 'article',
+    image: product.image,
+    schema: isProduct ? productSchema(product) : seoSchema(product, seoMatch[1], canonical, description),
+    body: isProduct ? productFallback(product) : seoFallback(product, seoMatch[1])
+  });
+
+  return new Response(html, {
+    headers: {
+      'content-type': 'text/html; charset=UTF-8',
+      'cache-control': 'public, max-age=0, s-maxage=3600'
+    }
+  });
+}

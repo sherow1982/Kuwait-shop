@@ -610,7 +610,7 @@ function render() {
     <main id="top">
       <section class="hero">
         <div class="hero-copy"><p class="eyebrow">اختياراتك في مكان واحد</p><h1>كل ما يحتاجه<br /><em>البيت الكويتي.</em></h1><p class="hero-text">تسوّق آلاف المنتجات المختارة بعناية، من احتياجات المنزل إلى الهدايا والإكسسوارات.</p><div class="hero-actions"><a class="primary-button" href="#products">ابدأ التسوّق <span>←</span></a><a class="text-button" href="#why-us">اكتشف المتجر <span>↓</span></a></div><div class="hero-trust"><span><b>4,000+</b> منتج متنوع</span><i></i><span><b>توصيل</b> داخل الكويت</span><i></i><span><b>دفع آمن</b> عند الطلب</span></div></div>
-        <div class="hero-art" aria-hidden="true"><div class="sun-disc"></div><div class="arch arch-back"></div><div class="arch arch-front"></div><div class="hero-card hero-card-one"><span>✦</span><b>تجربة سهلة</b><small>من الاختيار حتى الطلب</small></div><div class="hero-card hero-card-two"><span>✓</span><b>منتجات متاحة</b><small>اختيارات يومية متجددة</small></div><div class="palm palm-one">⌇</div><div class="palm palm-two">⌇</div></div>
+        <div class="hero-art" aria-hidden="true"><img class="hero-brand-banner" src="/brand/kuwait-shop-banner.svg" alt="" /></div>
       </section>
        ${featuredSliderMarkup()}
        <section class="benefits" id="why-us"><div><span>◈</span><p><b>خيارات متنوعة</b><small>كل ما تحتاجه في متجر واحد</small></p></div><div><span>⌁</span><p><b>تجربة تسوّق سهلة</b><small>بحث سريع وسلة واضحة</small></p></div><div><span>⌂</span><p><b>توصيل محلي</b><small>إلى مختلف مناطق الكويت</small></p></div><div><span>✦</span><p><b>عروض مختارة</b><small>قيمة أفضل لطلباتك</small></p></div></section>

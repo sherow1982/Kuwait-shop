@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
 const siteUrl = 'https://kuwait-shop.arabsads.shop';
@@ -69,6 +69,14 @@ const seoPageTypes = [
   { slug: 'تجربتي', label: 'تجربتي مع', title: (product) => `تجربتي مع ${product.title} في الكويت`, intro: (product) => `ملخص معلوماتي عن ${product.title} في الكويت وما يجب التحقق منه قبل الطلب والاستخدام.` }
 ];
 
+// These folders were used by an earlier static-page strategy. Their routes are
+// now served by the Pages Function, so remove only these known generated paths
+// before writing the deployable output.
+await Promise.all([
+  rm(join(distPath, 'product'), { recursive: true, force: true }),
+  ...seoPageTypes.map((type) => rm(join(distPath, type.slug), { recursive: true, force: true }))
+]);
+
 function seoLandingUrl(product, type) {
   return `${siteUrl}/${encodeURIComponent(type.slug)}/${encodeURIComponent(product.slug)}`;
 }
@@ -125,41 +133,9 @@ await writeFile(join(distPath, 'feeds', 'google-merchant.xml'), merchantFeed, 'u
 const llms = `# كويت شوب\n\n> متجر إلكتروني كويتي لمنتجات المنزل والحياة اليومية.\n\n- الموقع: ${siteUrl}\n- اللغة: العربية (الكويت)\n- العملة: الدينار الكويتي (KWD)\n- منطقة الخدمة: دولة الكويت\n- كتالوج Google Merchant Center: ${siteUrl}/feeds/google-merchant.xml\n- خريطة الموقع: ${siteUrl}/sitemap.xml\n`;
 await writeFile(join(distPath, 'llms.txt'), llms, 'utf8');
 
-for (const product of products) {
-  const folder = join(distPath, 'product', product.slug);
-  await mkdir(folder, { recursive: true });
-  const title = `${product.title} | كويت شوب`;
-  const description = product.description.slice(0, 155);
-  const productHtml = pageMetadata(baseHtml, { title, description, url: productUrl(product), type: 'product', image: product.image })
-    .replace('</head>', `<script id="product-jsonld" type="application/ld+json">${JSON.stringify(productSchema(product))}</script></head>`);
-  await writeFile(join(folder, 'index.html'), productHtml, 'utf8');
-}
-
-for (const product of products) {
-  for (const type of seoPageTypes) {
-    const folder = join(distPath, type.slug, product.slug);
-    await mkdir(folder, { recursive: true });
-    const pageUrl = seoLandingUrl(product, type);
-    const title = `${type.title(product)} | كويت شوب`;
-    const description = `${type.intro(product)} السعر الحالي ${Number(product.price).toLocaleString('ar-KW')} د.ك.`;
-    const seoSchema = {
-      '@context': 'https://schema.org',
-      '@type': 'Article',
-      headline: type.title(product),
-      description,
-      inLanguage: 'ar-KW',
-      mainEntityOfPage: pageUrl,
-      about: { '@type': 'Product', name: product.title, sku: product.id, category: product.googleProductCategory || product.category, url: productUrl(product) },
-      author: { '@id': organizationId },
-      publisher: { '@id': organizationId },
-      contentLocation: { '@type': 'Country', name: 'Kuwait', identifier: 'KW' }
-    };
-    const seoHtml = pageMetadata(baseHtml, { title, description, url: pageUrl, type: 'article', image: product.image })
-      .replace('<div id="app"></div>', `<div id="app">${seoLandingContent(product, type)}</div>`)
-      .replace('</head>', `<script id="seo-jsonld" type="application/ld+json">${JSON.stringify(seoSchema)}</script></head>`);
-    await writeFile(join(folder, 'index.html'), seoHtml, 'utf8');
-  }
-}
+// Product and local-SEO URLs are rendered at the edge by functions/[[path]].js.
+// Keeping their URLs in the sitemaps preserves discoverability while avoiding the
+// Cloudflare Pages 20,000 deployed-file limit.
 
 for (const page of legalPages) {
   const folder = join(distPath, 'ar', page.slug);
@@ -170,4 +146,4 @@ for (const page of legalPages) {
   await writeFile(join(folder, 'index.html'), pageHtml, 'utf8');
 }
 
-console.log(`Generated product pages, ${seoSitemapEntries.length.toLocaleString('en-US')} local SEO landing pages, legal pages, sitemaps, and Merchant feed for ${products.length.toLocaleString('en-US')} products.`);
+console.log(`Generated legal pages, sitemaps, and Merchant feed for ${products.length.toLocaleString('en-US')} products. ${seoSitemapEntries.length.toLocaleString('en-US')} local SEO URLs are served dynamically by the Pages Function.`);
