@@ -17,7 +17,8 @@ const state = {
 
 const currency = new Intl.NumberFormat('ar-KW', {
   minimumFractionDigits: 0,
-  maximumFractionDigits: 0
+  maximumFractionDigits: 0,
+  numberingSystem: 'latn'
 });
 
 const app = document.querySelector('#app');
@@ -366,7 +367,7 @@ function renderProducts() {
     ? results.map(productCard).join('')
     : `<div class="empty-state"><span>⌕</span><h3>لم نجد ما تبحث عنه</h3><p>جرّب كلمات مختلفة أو تصنيفاً آخر.</p><button class="outline-button" data-action="reset-filters">عرض كل المنتجات</button></div>`;
   loadMore.hidden = results.length >= allProducts.length || !results.length;
-  loadMore.querySelector('span').textContent = `عرض المزيد (${Math.max(0, allProducts.length - results.length).toLocaleString('ar-KW')})`;
+  loadMore.querySelector('span').textContent = `عرض المزيد (${Math.max(0, allProducts.length - results.length).toLocaleString('en-US')})`;
 }
 
 function renderCategories() {
@@ -388,7 +389,7 @@ function renderCart() {
   const cartList = document.querySelector('#cart-list');
   const total = document.querySelector('#cart-total');
   const checkout = document.querySelector('#checkout-button');
-  document.querySelectorAll('[data-cart-count]').forEach((element) => { element.textContent = cartCount().toLocaleString('ar-KW'); });
+  document.querySelectorAll('[data-cart-count]').forEach((element) => { element.textContent = cartCount().toLocaleString('en-US'); });
   const floatingTotal = document.querySelector('#floating-cart-total');
   if (floatingTotal) floatingTotal.textContent = price(cartTotal());
   if (!cartList || !total || !checkout) return;
@@ -400,7 +401,7 @@ function renderCart() {
       <div class="cart-item-info"><strong>${escapeHtml(item.title)}</strong><span>${price(item.price)}</span></div>
       <div class="quantity-control">
         <button data-action="change-quantity" data-product-id="${escapeHtml(item.id)}" data-delta="1" aria-label="زيادة الكمية">+</button>
-        <span>${item.quantity.toLocaleString('ar-KW')}</span>
+        <span>${item.quantity.toLocaleString('en-US')}</span>
         <button data-action="change-quantity" data-product-id="${escapeHtml(item.id)}" data-delta="-1" aria-label="تقليل الكمية">−</button>
       </div>
     </li>`).join('') : `<li class="cart-empty"><span>🛍</span><h3>سلتك فارغة</h3><p>أضف ما يعجبك لنبدأ الطلب.</p></li>`;
