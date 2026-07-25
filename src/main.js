@@ -379,7 +379,9 @@ function renderCategories() {
   ].join('');
   const toggle = document.querySelector('#category-toggle');
   toggle.hidden = categories.length <= 10;
-  toggle.textContent = state.categoriesExpanded ? 'عرض أقل' : `كل التصنيفات (${currency.format(categories.length)})`;
+  const toggleLabel = state.categoriesExpanded ? 'عرض أقل' : `كل التصنيفات (${currency.format(categories.length)})`;
+  toggle.textContent = toggleLabel;
+  toggle.setAttribute('aria-label', toggleLabel);
 }
 
 function renderCart() {
@@ -643,6 +645,7 @@ function render() {
   renderCart();
   mountCheckoutFields();
   initHeroSlider();
+  document.querySelector('#cart-drawer')?.setAttribute('inert', '');
 }
 
 function showToast(message) {
@@ -654,16 +657,20 @@ function showToast(message) {
 }
 
 function openCart() {
-  document.querySelector('#cart-drawer').classList.add('is-open');
+  const drawer = document.querySelector('#cart-drawer');
+  drawer.classList.add('is-open');
+  drawer.removeAttribute('inert');
   document.querySelector('#drawer-backdrop').classList.add('is-open');
-  document.querySelector('#cart-drawer').setAttribute('aria-hidden', 'false');
+  drawer.setAttribute('aria-hidden', 'false');
   document.body.classList.add('no-scroll');
 }
 
 function closeCart() {
-  document.querySelector('#cart-drawer').classList.remove('is-open');
+  const drawer = document.querySelector('#cart-drawer');
+  drawer.classList.remove('is-open');
+  drawer.setAttribute('inert', '');
   document.querySelector('#drawer-backdrop').classList.remove('is-open');
-  document.querySelector('#cart-drawer').setAttribute('aria-hidden', 'true');
+  drawer.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('no-scroll');
 }
 
