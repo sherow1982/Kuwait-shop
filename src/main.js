@@ -255,6 +255,21 @@ function companyFooterMarkup() {
   return `<div class="company-attribution"><strong>كويت شوب تابع لشركة إعلانات العرب للتسويق الإلكتروني (Arab Ads)</strong><span>المكتب المسجل: Building 69, Apartment 3, 1st Neighborhood, 6th District, 6th of October City, Giza, Egypt · P.O. Box 12566</span><span>الرقم الضريبي: 657-989-878 · <a href="mailto:sherow1982@gmail.com">sherow1982@gmail.com</a> · <a href="https://wa.me/201110760081" target="_blank" rel="noopener">واتساب خدمة العملاء</a></span></div>`;
 }
 
+const CATEGORY_META = {
+  'المنزل والحديقة':           { icon: '🏡', color: '#2e7d32' },
+  'الإلكترونيات':              { icon: '📱', color: '#1565c0' },
+  'الصحة والجمال':             { icon: '✨', color: '#ad1457' },
+  'الحيوانات الأليفة':         { icon: '🐾', color: '#6d4c41' },
+  'المطبخ والأدوات المنزلية':  { icon: '🍳', color: '#e65100' },
+  'الملابس والإكسسوارات':      { icon: '👗', color: '#6a1b9a' },
+  'السيارات وملحقاتها':        { icon: '🚗', color: '#37474f' },
+  'الكاميرات والبصريات':       { icon: '📷', color: '#00695c' },
+  'الألعاب والهوايات':         { icon: '🎮', color: '#c62828' },
+  'الرياضة واللياقة':          { icon: '⚽', color: '#2e7d32' },
+  'مستلزمات المكتب':           { icon: '🖊️', color: '#1565c0' },
+  'الفنون والهوايات':          { icon: '🎨', color: '#6a1b9a' },
+};
+
 const KUWAIT_GOVERNORATES = ['العاصمة', 'حولي', 'الفروانية', 'الجهراء', 'الأحمدي', 'مبارك الكبير'];
 
 function mountCheckoutFields() {
@@ -388,17 +403,25 @@ function renderProducts() {
 
 function renderCategories() {
   const categories = getCategories();
-  const categoryList = document.querySelector('#category-list');
-  const visibleCategories = state.categoriesExpanded ? categories : categories.slice(0, 10);
-  categoryList.innerHTML = [
-    `<button class="category-chip ${state.category === 'الكل' ? 'is-active' : ''}" data-action="set-category" data-category="الكل">كل المنتجات <small>${currency.format(state.products.length)}</small></button>`,
-    ...visibleCategories.map(({ name, count }) => `<button class="category-chip ${state.category === name ? 'is-active' : ''}" data-action="set-category" data-category="${escapeHtml(name)}">${escapeHtml(name)} <small>${currency.format(count)}</small></button>`)
-  ].join('');
-  const toggle = document.querySelector('#category-toggle');
-  toggle.hidden = categories.length <= 10;
-  const toggleLabel = state.categoriesExpanded ? 'عرض أقل' : `كل التصنيفات (${currency.format(categories.length)})`;
-  toggle.textContent = toggleLabel;
-  toggle.setAttribute('aria-label', toggleLabel);
+  const container = document.querySelector('#category-cards');
+  if (!container) return;
+  const allMeta = { icon: '🛍️', color: '#006b35' };
+  const cards = [
+    { name: 'الكل', count: state.products.length, ...allMeta },
+    ...categories.map(({ name, count }) => ({ name, count, ...(CATEGORY_META[name] || { icon: '📦', color: '#5a6b66' }) }))
+  ];
+  container.innerHTML = cards.map(({ name, count, icon, color }) => `
+    <button
+      class="category-card ${state.category === name ? 'is-active' : ''}"
+      data-action="set-category"
+      data-category="${escapeHtml(name)}"
+      style="--cc-color:${color}"
+      aria-pressed="${state.category === name}"
+    >
+      <span class="category-card-icon">${icon}</span>
+      <span class="category-card-name">${escapeHtml(name === 'الكل' ? 'كل المنتجات' : name)}</span>
+      <span class="category-card-count">${currency.format(count)} منتج</span>
+    </button>`).join('');
 }
 
 function renderCart() {
@@ -620,7 +643,7 @@ function render() {
     <main id="top">
       ${siteBannerMarkup()}
       <section class="benefits" id="why-us"><div><span>◈</span><p><b>خيارات متنوعة</b><small>كل ما تحتاجه في متجر واحد</small></p></div><div><span>⌁</span><p><b>تجربة تسوّق سهلة</b><small>بحث سريع وسلة واضحة</small></p></div><div><span>⌂</span><p><b>توصيل محلي</b><small>إلى مختلف مناطق الكويت</small></p></div><div><span>✦</span><p><b>عروض مختارة</b><small>قيمة أفضل لطلباتك</small></p></div></section>
-      <section class="catalog" id="products"><div class="section-heading"><div><p class="eyebrow">تسوّق حسب احتياجك</p><h2>اكتشف منتجاتنا</h2></div><p>منتجات كثيرة، تجربة شراء واحدة بسيطة.</p></div><div class="search-and-sort"><label class="search-box"><span>⌕</span><input id="search-input" type="search" autocomplete="off" placeholder="ابحث عن منتج، تصنيف، أو احتياج..." /></label><label class="sort-box"><span>ترتيب حسب</span><select id="sort-select"><option value="featured">الأبرز أولاً</option><option value="low">السعر: الأقل أولاً</option><option value="high">السعر: الأعلى أولاً</option><option value="discount">أعلى الخصومات</option></select></label></div><div class="category-bar"><div id="category-list" class="category-list"></div><button id="category-toggle" class="category-more" data-action="toggle-categories"></button></div><div class="results-meta"><span id="results-count">...</span><span>متاح الآن للتسوّق</span></div><div id="products-grid" class="products-grid" aria-live="polite"><div class="loading-state"><span></span><span></span><span></span></div></div><div class="load-more-wrap"><button id="load-more" class="outline-button" data-action="load-more"><span>عرض المزيد</span> ↓</button></div></section>
+      <section class="catalog" id="products"><div class="section-heading"><div><p class="eyebrow">تسوّق حسب احتياجك</p><h2>اكتشف منتجاتنا</h2></div><p>منتجات كثيرة، تجربة شراء واحدة بسيطة.</p></div><div class="search-and-sort"><label class="search-box"><span>⌕</span><input id="search-input" type="search" autocomplete="off" placeholder="ابحث عن منتج، تصنيف، أو احتياج..." /></label><label class="sort-box"><span>ترتيب حسب</span><select id="sort-select"><option value="featured">الأبرز أولاً</option><option value="low">السعر: الأقل أولاً</option><option value="high">السعر: الأعلى أولاً</option><option value="discount">أعلى الخصومات</option></select></label></div><div id="category-cards" class="category-cards"></div><div class="results-meta"><span id="results-count">...</span><span>متاح الآن للتسوّق</span></div><div id="products-grid" class="products-grid" aria-live="polite"><div class="loading-state"><span></span><span></span><span></span></div></div><div class="load-more-wrap"><button id="load-more" class="outline-button" data-action="load-more"><span>عرض المزيد</span> ↓</button></div></section>
       <section class="cta-section"><div><p class="eyebrow">وصلت للي تبيه؟</p><h2>أضف منتجاتك واطلبها<br />بكل سهولة.</h2></div><button class="light-button" data-action="open-cart">فتح السلة <span>←</span></button></section>
     </main>
     <footer><a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"></span></a><p>وجهتك اليومية لمنتجات البيت والحياة في الكويت.</p>${legalFooterMarkup()}${companyFooterMarkup()}<small>© ${new Date().getFullYear()} كويت شوب. جميع الحقوق محفوظة.</small></footer>
