@@ -623,7 +623,14 @@ function renderProductDialog() {
 
 function siteBannerMarkup() {
   return `<a href="#products" class="site-banner" aria-label="تسوق كويت شوب">
-    <img src="/brand/banner.jpg" alt="كويت شوب — تسوق احتياجاتك اليومية بأسعار مختارة وتوصيل داخل الكويت" width="1920" height="600" />
+    <img
+      src="/brand/banner.jpg"
+      srcset="/brand/banner-768.jpg 768w, /brand/banner-1280.jpg 1280w, /brand/banner.jpg 1717w"
+      sizes="100vw"
+      alt="كويت شوب — تسوق احتياجاتك اليومية بأسعار مختارة وتوصيل داخل الكويت"
+      width="1717" height="916"
+      fetchpriority="high"
+    />
   </a>`;
 }
 
@@ -750,7 +757,18 @@ function submitCheckout(form) {
   }
   phoneInput.setCustomValidity('');
   const orderId = `KW-${Date.now().toString(36).toUpperCase()}`;
-  const lines = state.cart.map((item, index) => `${index + 1}) ${item.title}\n   الكمية: ${item.quantity} | سعر الوحدة: ${price(item.price)} | المجموع: ${price(item.price * item.quantity)}`);
+  const lines = state.cart.map((item, index) => {
+    const product = productById(item.id);
+    const shippingRaw = product?.shipping || '';
+    const shippingCost = shippingRaw.includes('0.00') ? 'مجاني لبعض المناطق' : shippingRaw.split(':')[1] || shippingRaw;
+    const productUrl = product ? `${window.location.origin}${productPath(product)}` : '';
+    return [
+      `${index + 1}) ${item.title}`,
+      `   السعر: ${price(item.price)} × ${item.quantity} = ${price(item.price * item.quantity)}`,
+      `   مصاريف الشحن: ${shippingCost}`,
+      `   الرابط: ${productUrl}`
+    ].join('\n');
+  });
   const message = [
     'السلام عليكم، أرغب بتأكيد هذا الطلب من كويت شوب 🛍️',
     '',
@@ -763,8 +781,8 @@ function submitCheckout(form) {
     'تفاصيل المنتجات:',
     ...lines,
     '',
-    `الإجمالي التقريبي: ${price(cartTotal())}`,
-    'طريقة الدفع والتوصيل: يتم التأكيد مع المتجر',
+    `إجمالي المنتجات: ${price(cartTotal())}`,
+    'مصاريف الشحن: تُحدد حسب المنطقة عند التأكيد',
     notes ? `ملاحظات: ${notes}` : '',
     '',
     'أرجو تأكيد التوفر والتوصيل. شكراً.'

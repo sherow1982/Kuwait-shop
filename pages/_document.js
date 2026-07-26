@@ -15,6 +15,7 @@ export default function Document() {
         <link rel="apple-touch-icon" href="/brand/kuwait-shop-logo.jpg" />
         <link rel="manifest" href="/site.webmanifest" />
         <link rel="preconnect" href="https://assets.wuiltstore.com" crossOrigin="anonymous" />
+        <link rel="preload" as="image" href="/brand/banner-768.jpg" imageSrcSet="/brand/banner-768.jpg 768w, /brand/banner-1280.jpg 1280w, /brand/banner.jpg 1717w" imageSizes="100vw" fetchPriority="high" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" />
