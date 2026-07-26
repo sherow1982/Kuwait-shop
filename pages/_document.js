@@ -18,6 +18,16 @@ export default function Document() {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" />
+        <style dangerouslySetInnerHTML={{ __html: `
+          @font-face {
+            font-family: 'Cairo-Fallback';
+            src: local('Arial'), local('Tahoma');
+            size-adjust: 105%;
+            ascent-override: 95%;
+            descent-override: 25%;
+            line-gap-override: 0%;
+          }
+        ` }} />
       </Head>
       <body>
         <Main />
