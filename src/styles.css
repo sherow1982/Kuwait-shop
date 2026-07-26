@@ -829,3 +829,189 @@ dialog::backdrop { background: rgba(5, 29, 27, .65); }
   .checkout-section-title { font-size: 15px; }
   .checkout-submit-btn { min-height: 50px; font-size: 14px; }
 }
+
+/* =====================================================
+   BUTTON SIZES — Global fix across all pages
+   ===================================================== */
+
+/* Base sizes (desktop) */
+.primary-button,
+.light-button,
+.outline-button {
+  min-height: 50px;
+  padding: 0 26px;
+  font-size: 14px;
+  border-radius: 8px;
+  gap: 10px;
+}
+
+.cart-trigger {
+  min-height: 46px;
+  padding: 0 18px;
+  font-size: 14px;
+  border-radius: 8px;
+  gap: 8px;
+}
+
+.add-button {
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+.whatsapp-product-button,
+.full-whatsapp-button {
+  min-height: 52px;
+  font-size: 14px;
+  border-radius: 8px;
+}
+
+.detail-add-button {
+  min-height: 52px !important;
+  font-size: 14px !important;
+}
+
+.detail-quantity {
+  min-height: 52px !important;
+}
+
+.detail-quantity button {
+  font-size: 22px !important;
+}
+
+.share-btn {
+  min-height: 44px;
+  padding: 0 16px;
+  font-size: 13px;
+  border-radius: 8px;
+}
+
+.legal-whatsapp {
+  min-height: 50px;
+  padding: 0 24px;
+  font-size: 14px;
+  border-radius: 8px;
+}
+
+.checkout-submit-btn {
+  min-height: 58px !important;
+  font-size: 16px !important;
+  border-radius: 10px !important;
+}
+
+.drawer-footer .primary-button {
+  min-height: 54px;
+  font-size: 15px;
+}
+
+/* Mobile overrides — bigger tap targets */
+@media (max-width: 570px) {
+  .primary-button,
+  .light-button,
+  .outline-button {
+    min-height: 52px;
+    padding: 0 22px;
+    font-size: 15px;
+  }
+
+  .cart-trigger {
+    min-height: 44px;
+    padding: 0 14px;
+    font-size: 13px;
+  }
+
+  #app .products-grid .add-button {
+    min-height: 36px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  #app .products-grid .add-button b {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
+
+  .whatsapp-product-button,
+  .full-whatsapp-button {
+    min-height: 54px;
+    font-size: 15px;
+  }
+
+  .detail-add-button {
+    min-height: 54px !important;
+    font-size: 15px !important;
+  }
+
+  .detail-quantity {
+    min-height: 54px !important;
+  }
+
+  .share-btn {
+    min-height: 46px;
+    padding: 0 14px;
+  }
+
+  .checkout-submit-btn {
+    min-height: 58px !important;
+    font-size: 16px !important;
+  }
+
+  .drawer-footer .primary-button {
+    min-height: 56px;
+    font-size: 16px;
+  }
+
+  .outline-button {
+    min-height: 52px;
+    font-size: 14px;
+  }
+
+  /* Cart drawer quantity buttons */
+  .quantity-control button {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 18px !important;
+    border-radius: 6px !important;
+  }
+
+  .quantity-control span {
+    font-size: 14px !important;
+    min-width: 24px !important;
+  }
+
+  /* Checkout page */
+  .checkout-page input,
+  .checkout-page select {
+    height: 54px !important;
+  }
+
+  .checkout-page textarea {
+    min-height: 100px !important;
+  }
+}
+
+/* Tablet */
+@media (min-width: 571px) and (max-width: 850px) {
+  .primary-button,
+  .light-button,
+  .outline-button {
+    min-height: 50px;
+    font-size: 14px;
+  }
+
+  .whatsapp-product-button,
+  .full-whatsapp-button {
+    min-height: 52px;
+    font-size: 14px;
+  }
+
+  .detail-add-button {
+    min-height: 52px !important;
+  }
+
+  .detail-quantity {
+    min-height: 52px !important;
+  }
+}
