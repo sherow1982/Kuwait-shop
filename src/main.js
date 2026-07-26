@@ -314,21 +314,10 @@ function isKuwaitPhone(value) {
 function sendProductToWhatsApp(product) {
   if (!product) return;
   const message = [
-    'السلام عليكم، أرغب بطلب هذا المنتج من كويت شوب 🛍️',
-    '',
-    `المنتج: ${product.title}`,
+    `طلب شراء: ${product.title}`,
     `السعر: ${price(product.price)}`,
-    product.original ? `السعر قبل الخصم: ${price(product.original)}` : '',
-    `التصنيف: ${product.category}`,
-    `تصنيف Google: ${product.googleProductCategory || ''}`,
-    `رقم المنتج: ${product.id}`,
-    `رابط المنتج: ${window.location.origin}${productPath(product)}`,
-    '',
-    `الوصف: ${product.description || 'منتج مختار بعناية.'}`,
-    `الشحن: ${product.shipping || 'مجاني لبعض المناطق، وتصل الرسوم إلى 5 د.ك حسب المنطقة.'}`,
-    '',
-    'الكمية المطلوبة: 1'
-  ].filter(Boolean).join('\n');
+    `رابط المنتج: ${window.location.origin}${productPath(product)}`
+  ].join('\n');
   window.open(`https://wa.me/201110760081?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
 }
 
@@ -467,7 +456,7 @@ function renderProductPage(product) {
     <header class="site-header">
       <a href="/" class="brand" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a>
       <nav class="main-nav" aria-label="التنقل الرئيسي"><a href="/">الرئيسية</a><a href="/#products">تسوّق</a><a href="/#why-us">لماذا كويت شوب؟</a></nav>
-      <div class="header-actions"><a class="search-trigger" href="/#products" aria-label="بحث">⌕</a><button class="cart-trigger" data-action="open-cart" aria-label="فتح السلة"><span class="bag-icon">♧</span><b data-cart-count>0</b><span>السلة</span></button></div>
+      <div class="header-actions"><a class="search-trigger" href="/#products" aria-label="بحث">⌕</a><button class="cart-trigger" data-action="open-cart" aria-label="فتح السلة"><span class="bag-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span><b data-cart-count>0</b><span>السلة</span></button></div>
     </header>
     <main class="product-page" id="top">
       <div class="product-breadcrumbs"><a href="/">الرئيسية</a><span>←</span><a href="/#products">${escapeHtml(product.category)}</a><span>←</span><strong>${escapeHtml(product.title)}</strong></div>
@@ -497,7 +486,7 @@ function renderProductPage(product) {
     </main>
     <footer><a class="brand" href="/" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a><p>وجهتك اليومية لمنتجات البيت والحياة في الكويت.</p>${legalFooterMarkup()}${companyFooterMarkup()}<small>© ${new Date().getFullYear()} كويت شوب. جميع الحقوق محفوظة.</small></footer>
     <aside id="cart-drawer" class="cart-drawer" aria-label="سلة التسوق" aria-hidden="true"><div class="drawer-header"><div><p class="eyebrow">طلبك المختار</p><h2>سلة التسوق <small data-cart-count>0</small></h2></div><button data-action="close-cart" aria-label="إغلاق السلة">×</button></div><ul id="cart-list"></ul><div class="drawer-footer"><div><span>الإجمالي التقريبي</span><strong id="cart-total"></strong></div><button id="checkout-button" class="primary-button full-button" data-action="checkout">إتمام الطلب <span>←</span></button><small>سيتم تأكيد التوصيل والدفع عند إتمام الطلب.</small></div></aside><div class="drawer-backdrop" id="drawer-backdrop" data-action="close-cart"></div>
-    <button class="floating-cart" data-action="open-cart" aria-label="فتح السلة العائمة"><span class="floating-cart-icon">♧</span><span class="floating-cart-copy"><strong>السلة</strong><small id="floating-cart-total">٠٫٠٠ د.ك</small></span><b data-cart-count>0</b></button>
+    <button class="floating-cart" data-action="checkout" aria-label="إتمام الطلب"><span class="floating-cart-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span><span class="floating-cart-copy"><strong>إتمام الطلب</strong><small id="floating-cart-total">٠٫٠٠ د.ك</small></span><b data-cart-count>0</b></button>
     
     <div id="toast" class="toast" role="status" aria-live="polite"></div>`;
   renderCart();
@@ -532,7 +521,7 @@ function renderLegalPage(key) {
     <header class="site-header">
       <a href="/" class="brand" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a>
       <nav class="main-nav" aria-label="التنقل الرئيسي"><a href="/">الرئيسية</a><a href="/#products">تسوّق</a><a href="/ar/about-us">نبذة عنا</a><a href="/ar/contact-us">تواصل معنا</a></nav>
-      <div class="header-actions"><a class="search-trigger" href="/#products" aria-label="بحث">⌕</a><button class="cart-trigger" data-action="open-cart" aria-label="فتح السلة"><span class="bag-icon">♧</span><b data-cart-count>0</b><span>السلة</span></button></div>
+      <div class="header-actions"><a class="search-trigger" href="/#products" aria-label="بحث">⌕</a><button class="cart-trigger" data-action="open-cart" aria-label="فتح السلة"><span class="bag-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span><b data-cart-count>0</b><span>السلة</span></button></div>
     </header>
     <main class="legal-page" id="top">
       <div class="product-breadcrumbs"><a href="/">الرئيسية</a><span>←</span><strong>${page.title}</strong></div>
@@ -545,7 +534,7 @@ function renderLegalPage(key) {
     </main>
     <footer><a class="brand" href="/" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a><p>وجهتك اليومية لمنتجات البيت والحياة في الكويت.</p>${legalFooterMarkup()}${companyFooterMarkup()}<small>© ${new Date().getFullYear()} كويت شوب. جميع الحقوق محفوظة.</small></footer>
     <aside id="cart-drawer" class="cart-drawer" aria-label="سلة التسوق" aria-hidden="true"><div class="drawer-header"><div><p class="eyebrow">طلبك المختار</p><h2>سلة التسوق <small data-cart-count>0</small></h2></div><button data-action="close-cart" aria-label="إغلاق السلة">×</button></div><ul id="cart-list"></ul><div class="drawer-footer"><div><span>الإجمالي التقريبي</span><strong id="cart-total"></strong></div><button id="checkout-button" class="primary-button full-button" data-action="checkout">إتمام الطلب <span>←</span></button><small>سيتم تأكيد التوصيل والدفع عند إتمام الطلب.</small></div></aside><div class="drawer-backdrop" id="drawer-backdrop" data-action="close-cart"></div>
-    <button class="floating-cart" data-action="open-cart" aria-label="فتح السلة العائمة"><span class="floating-cart-icon">♧</span><span class="floating-cart-copy"><strong>السلة</strong><small id="floating-cart-total">٠ د.ك</small></span><b data-cart-count>0</b></button>
+    <button class="floating-cart" data-action="checkout" aria-label="إتمام الطلب"><span class="floating-cart-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span><span class="floating-cart-copy"><strong>إتمام الطلب</strong><small id="floating-cart-total">٠ د.ك</small></span><b data-cart-count>0</b></button>
     
     <div id="toast" class="toast" role="status" aria-live="polite"></div>`;
   renderCart();
@@ -581,10 +570,10 @@ function renderSeoLandingPage(product, type) {
   const sections = page.sections(product).map(([heading, content], index) => `<section><span>${String(index + 1).padStart(2, '0')}</span><div><h2>${heading}</h2><p>${content}</p></div></section>`).join('');
   app.innerHTML = `
     <div class="announcement"><span>🇰🇼</span><b>تسوّق كويتي براحة</b><span>•</span><span>توصيل داخل محافظات الكويت</span></div>
-    <header class="site-header"><a href="/" class="brand" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a><nav class="main-nav" aria-label="التنقل الرئيسي"><a href="/">الرئيسية</a><a href="/#products">تسوّق</a><a href="/ar/shipping-policy">الشحن</a><a href="/ar/contact-us">تواصل معنا</a></nav><div class="header-actions"><a class="search-trigger" href="/#products" aria-label="بحث">⌕</a><button class="cart-trigger" data-action="open-cart" aria-label="فتح السلة"><span class="bag-icon">♧</span><b data-cart-count>0</b><span>السلة</span></button></div></header>
+    <header class="site-header"><a href="/" class="brand" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a><nav class="main-nav" aria-label="التنقل الرئيسي"><a href="/">الرئيسية</a><a href="/#products">تسوّق</a><a href="/ar/shipping-policy">الشحن</a><a href="/ar/contact-us">تواصل معنا</a></nav><div class="header-actions"><a class="search-trigger" href="/#products" aria-label="بحث">⌕</a><button class="cart-trigger" data-action="open-cart" aria-label="فتح السلة"><span class="bag-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span><b data-cart-count>0</b><span>السلة</span></button></div></header>
     <main class="seo-landing" id="top"><div class="product-breadcrumbs"><a href="/">الرئيسية</a><span>←</span><a href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener">${escapeHtml(product.title)}</a><span>←</span><strong>${page.label}</strong></div><section class="seo-landing-hero"><div><p class="eyebrow">${page.eyebrow} · الكويت</p><h1>${page.title(product)}</h1><p>${page.intro(product)}</p><div class="seo-hero-actions"><a class="primary-button" href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener">عرض المنتج <span>←</span></a><a class="text-button dark-text" href="/ar/shipping-policy">سياسة الشحن <span>←</span></a></div></div><a class="seo-product-summary" href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" /><span>${escapeHtml(product.category)}</span><b>${escapeHtml(product.title)}</b><strong>${price(product.price)}</strong></a></section><article class="seo-guide-content">${sections}</article><section class="seo-guide-cta"><p class="eyebrow">جاهز للطلب؟</p><h2>اطلب ${escapeHtml(product.title)} داخل الكويت</h2><a class="primary-button" href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener">الانتقال لصفحة المنتج <span>←</span></a></section></main>
     <footer><a class="brand" href="/" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a><p>وجهتك اليومية لمنتجات البيت والحياة في الكويت.</p>${legalFooterMarkup()}${companyFooterMarkup()}<small>© ${new Date().getFullYear()} كويت شوب. جميع الحقوق محفوظة.</small></footer>
-    <aside id="cart-drawer" class="cart-drawer" aria-label="سلة التسوق" aria-hidden="true"><div class="drawer-header"><div><p class="eyebrow">طلبك المختار</p><h2>سلة التسوق <small data-cart-count>0</small></h2></div><button data-action="close-cart" aria-label="إغلاق السلة">×</button></div><ul id="cart-list"></ul><div class="drawer-footer"><div><span>الإجمالي التقريبي</span><strong id="cart-total"></strong></div><button id="checkout-button" class="primary-button full-button" data-action="checkout">إتمام الطلب <span>←</span></button><small>يتم تأكيد التوصيل والدفع قبل الإرسال.</small></div></aside><div class="drawer-backdrop" id="drawer-backdrop" data-action="close-cart"></div><button class="floating-cart" data-action="open-cart" aria-label="فتح السلة العائمة"><span class="floating-cart-icon">♧</span><span class="floating-cart-copy"><strong>السلة</strong><small id="floating-cart-total">٠ د.ك</small></span><b data-cart-count>0</b></button>
+    <aside id="cart-drawer" class="cart-drawer" aria-label="سلة التسوق" aria-hidden="true"><div class="drawer-header"><div><p class="eyebrow">طلبك المختار</p><h2>سلة التسوق <small data-cart-count>0</small></h2></div><button data-action="close-cart" aria-label="إغلاق السلة">×</button></div><ul id="cart-list"></ul><div class="drawer-footer"><div><span>الإجمالي التقريبي</span><strong id="cart-total"></strong></div><button id="checkout-button" class="primary-button full-button" data-action="checkout">إتمام الطلب <span>←</span></button><small>يتم تأكيد التوصيل والدفع قبل الإرسال.</small></div></aside><div class="drawer-backdrop" id="drawer-backdrop" data-action="close-cart"></div><button class="floating-cart" data-action="checkout" aria-label="إتمام الطلب"><span class="floating-cart-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span><span class="floating-cart-copy"><strong>إتمام الطلب</strong><small id="floating-cart-total">٠ د.ك</small></span><b data-cart-count>0</b></button>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>`;
   renderCart();
   mountCheckoutFields();
@@ -645,7 +634,7 @@ function render() {
     <header class="site-header">
       <a href="#top" class="brand" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a>
       <nav class="main-nav" aria-label="التنقل الرئيسي"><a href="#top">الرئيسية</a><a href="#products">تسوّق</a><a href="#why-us">لماذا كويت شوب؟</a></nav>
-      <div class="header-actions"><button class="search-trigger" data-action="focus-search" aria-label="بحث">⌕</button><button class="cart-trigger" data-action="open-cart" aria-label="فتح السلة"><span class="bag-icon">♧</span><b data-cart-count>0</b><span>السلة</span></button></div>
+      <div class="header-actions"><button class="search-trigger" data-action="focus-search" aria-label="بحث">⌕</button><button class="cart-trigger" data-action="open-cart" aria-label="فتح السلة"><span class="bag-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span><b data-cart-count>0</b><span>السلة</span></button></div>
     </header>
     <main id="top">
       ${siteBannerMarkup()}
@@ -766,7 +755,7 @@ function renderCheckoutPage() {
     <header class="site-header">
       <a href="/" class="brand" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a>
       <nav class="main-nav" aria-label="التنقل الرئيسي"><a href="/">الرئيسية</a><a href="/#products">تسوّق</a></nav>
-      <div class="header-actions"><button class="cart-trigger" data-action="open-cart" aria-label="فتح السلة"><span class="bag-icon">♧</span><b data-cart-count>0</b><span>السلة</span></button></div>
+      <div class="header-actions"><button class="cart-trigger" data-action="open-cart" aria-label="فتح السلة"><span class="bag-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span><b data-cart-count>0</b><span>السلة</span></button></div>
     </header>
     <main class="checkout-page" id="top">
       <div class="checkout-breadcrumbs"><a href="/">الرئيسية</a><span>←</span><button class="checkout-back-btn" data-action="go-back">← العودة للسلة</button></div>
@@ -1038,7 +1027,10 @@ async function start() {
       const legalKey = LEGAL_PATHS[decodedPathname.replace(/\/$/, '') || '/'];
       const seoRoute = decodedPathname.match(/^\/(شراء|افضل|احسن|تجربتي)\/(.+)$/);
       const productRoute = decodedPathname.match(/^\/product\/(.+)$/);
-      if (!legalKey && !seoRoute && !productRoute) { render(); }
+      if (!legalKey && !seoRoute && !productRoute) {
+        if (decodedPathname === '/checkout') renderCheckoutPage();
+        else render();
+      }
     }
 
     state.products = await fullPromise;
@@ -1055,6 +1047,7 @@ async function start() {
     if (legalKey) renderLegalPage(legalKey);
     else if (seoProduct) renderSeoLandingPage(seoProduct, seoRoute[1]);
     else if (routedProduct) renderProductPage(routedProduct);
+    else if (decodedPathname === '/checkout') renderCheckoutPage();
     else render();
   } catch (error) {
     app.innerHTML = `<main class="fatal-error"><span>!</span><h1>تعذّر تحميل المنتجات</h1><p>يرجى تحديث الصفحة أو المحاولة مرة أخرى.</p></main>`;
