@@ -740,9 +740,27 @@ function closeCheckout() {
   history.back();
 }
 
+const SHIPPING_ZONES = {
+  3: ['أم الهيمان', 'الشاليهات', 'شاليهات', 'بنيدر', 'كبد', 'صباح الأحمد', 'صباح الأحمد 2', 'المطلاع', 'صباح المطلاع'],
+  5: ['الوفرة', 'خيران', 'الخيران']
+};
+
+function calcShipping(area) {
+  const normalized = (area || '').trim();
+  if (!normalized) return null;
+  for (const [cost, areas] of Object.entries(SHIPPING_ZONES)) {
+    if (areas.some((a) => normalized.includes(a))) return Number(cost);
+  }
+  return 2;
+}
+
 function renderCheckoutPage() {
   const cartItems = state.cart;
-  const total = cartTotal();
+  const subtotal = cartTotal();
+
+  const AREAS_3KD = 'أم الهيمان، الشاليهات، بنيدر، كبد، صباح الأحمد، صباح الأحمد 2، المطلاع';
+  const AREAS_5KD = 'الوفرة، الخيران';
+
   app.innerHTML = `
     <div class="announcement"><span>🇰🇼</span><b>تسوّق كويتي براحة</b><span>•</span><span>توصيل إلى مختلف مناطق الكويت</span></div>
     <header class="site-header">
@@ -751,51 +769,79 @@ function renderCheckoutPage() {
       <div class="header-actions"><button class="cart-trigger" data-action="open-cart" aria-label="فتح السلة"><span class="bag-icon">♧</span><b data-cart-count>0</b><span>السلة</span></button></div>
     </header>
     <main class="checkout-page" id="top">
-      <div class="checkout-breadcrumbs"><a href="/">الرئيسية</a><span>←</span><a href="/#products" data-action="go-back">السلة</a><span>←</span><strong>إتمام الطلب</strong></div>
+      <div class="checkout-breadcrumbs"><a href="/">الرئيسية</a><span>←</span><button class="checkout-back-btn" data-action="go-back">← العودة للسلة</button></div>
       <div class="checkout-layout">
+
         <section class="checkout-form-section">
           <div class="checkout-section-card">
             <h2 class="checkout-section-title"><span class="checkout-step-num">١</span> بيانات التوصيل</h2>
             <form id="checkout-form">
               <div class="form-grid">
                 <label><span>الاسم الكامل</span><input name="customerName" autocomplete="name" required placeholder="مثال: محمد العتيبي" /></label>
-                <label><span>رقم الهاتف</span><input name="customerPhone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+96599077241" /></label>
+                <label><span>رقم الهاتف الكويتي</span><input name="customerPhone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+96599077241" /></label>
               </div>
-              <label><span>منطقة وعنوان التوصيل</span><input name="address" autocomplete="street-address" required placeholder="مثال: السالمية، قطعة 4، شارع 12، منزل 8" /></label>
-              <label><span>ملاحظات إضافية <small>(اختياري)</small></span><textarea name="notes" rows="3" placeholder="وقت مناسب للتوصيل أو أي تفاصيل تساعدنا..."></textarea></label>
+              <div class="form-grid">
+                <label>
+                  <span>المحافظة</span>
+                  <select name="governorate" required>
+                    <option value="">اختر المحافظة</option>
+                    ${KUWAIT_GOVERNORATES.map((g) => `<option value="${g}">${g}</option>`).join('')}
+                  </select>
+                </label>
+                <label><span>المنطقة التفصيلية</span><input name="area" id="checkout-area" required placeholder="مثال: السالمية، الرميثية..." /></label>
+              </div>
+              <label><span>العنوان الكامل</span><input name="address" autocomplete="street-address" required placeholder="قطعة، شارع، منزل أو مبنى" /></label>
+              <label><span>ملاحظات <small>(اختياري)</small></span><textarea name="notes" rows="3" placeholder="وقت مناسب للتوصيل أو أي تفاصيل تساعدنا..."></textarea></label>
+
+              <div class="checkout-shipping-calc" id="shipping-calc" hidden>
+                <span class="shipping-calc-label">مصاريف الشحن لمنطقتك</span>
+                <strong id="shipping-calc-value"></strong>
+              </div>
+
               <div class="checkout-trust-row">
                 <span>✓ بياناتك آمنة</span>
-                <span>✓ تأكيد عبر واتساب</span>
+                <span>✓ مراجعة قبل الإرسال</span>
                 <span>✓ توصيل داخل الكويت</span>
               </div>
-              <button class="primary-button full-button checkout-submit-btn" type="submit">تأكيد الطلب عبر واتساب <span>←</span></button>
-              <p class="form-note">سيتم فتح محادثة واتساب برسالة جاهزة تحتوي كل تفاصيل طلبك للمراجعة قبل الإرسال.</p>
+
+              <button class="primary-button full-button checkout-submit-btn" type="submit">
+                <span class="whatsapp-icon">◉</span> أرسل الطلب عبر واتساب
+              </button>
+              <p class="form-note">سيفتح واتساب برسالة جاهزة تحتوي كل تفاصيل طلبك — راجعها قبل الإرسال.</p>
             </form>
           </div>
+
+          <div class="checkout-section-card checkout-shipping-info-card">
+            <h3 class="checkout-section-title" style="font-size:14px"><span class="checkout-step-num" style="background:#e65100">✦</span> جدول مصاريف الشحن</h3>
+            <div class="checkout-shipping-table">
+              <div class="shipping-row"><span class="shipping-cost">2 د.ك</span><span class="shipping-areas">جميع مناطق الكويت الأخرى</span></div>
+              <div class="shipping-row shipping-row-alt"><span class="shipping-cost">3 د.ك</span><span class="shipping-areas">${AREAS_3KD}</span></div>
+              <div class="shipping-row"><span class="shipping-cost">5 د.ك</span><span class="shipping-areas">${AREAS_5KD}</span></div>
+            </div>
+          </div>
         </section>
+
         <aside class="checkout-summary-section">
           <div class="checkout-section-card">
             <h2 class="checkout-section-title"><span class="checkout-step-num">٢</span> ملخص الطلب</h2>
             <ul class="checkout-items-list">
-              ${cartItems.map((item) => {
-                const product = productById(item.id);
-                return `<li class="checkout-item">
-                  <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" />
+              ${cartItems.map((item) => `
+                <li class="checkout-item">
+                  <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy" />
                   <div class="checkout-item-info">
                     <strong>${escapeHtml(item.title)}</strong>
-                    <span class="checkout-item-shipping">${escapeHtml(product?.shipping || 'الشحن حسب المنطقة')}</span>
+                    <small>الكمية: ${item.quantity}</small>
                   </div>
                   <div class="checkout-item-price">
                     <b>${price(item.price * item.quantity)}</b>
-                    <small>× ${item.quantity}</small>
+                    <small>${price(item.price)} / قطعة</small>
                   </div>
-                </li>`;
-              }).join('')}
+                </li>`).join('')}
             </ul>
             <div class="checkout-totals">
-              <div><span>إجمالي المنتجات</span><strong>${price(total)}</strong></div>
-              <div><span>مصاريف الشحن</span><strong class="checkout-shipping-note">تُحدد عند التأكيد</strong></div>
-              <div class="checkout-grand-total"><span>الإجمالي التقريبي</span><strong>${price(total)}</strong></div>
+              <div><span>إجمالي المنتجات</span><strong>${price(subtotal)}</strong></div>
+              <div><span>مصاريف الشحن</span><strong id="summary-shipping">تُحدد بعد إدخال المنطقة</strong></div>
+              <div class="checkout-grand-total"><span>الإجمالي</span><strong id="summary-total">${price(subtotal)}</strong></div>
             </div>
             <div class="checkout-payment-methods">
               <p class="checkout-payment-label">طرق الدفع المتاحة</p>
@@ -810,12 +856,56 @@ function renderCheckoutPage() {
             <span>🔒</span>
             <div><strong>طلب آمن ومحمي</strong><small>بياناتك لا تُشارك مع أي طرف ثالث</small></div>
           </div>
+          <div class="checkout-whatsapp-note">
+            <span>◉</span>
+            <div>
+              <strong>التأكيد عبر واتساب</strong>
+              <small>بعد الضغط على الزر ستفتح محادثة واتساب برسالة جاهزة — راجعها وأرسلها لتأكيد الطلب.</small>
+            </div>
+          </div>
         </aside>
       </div>
     </main>
     <footer><a class="brand" href="/" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a><p>وجهتك اليومية لمنتجات البيت والحياة في الكويت.</p>${legalFooterMarkup()}${companyFooterMarkup()}<small>© ${new Date().getFullYear()} كويت شوب. جميع الحقوق محفوظة.</small></footer>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>`;
-  mountCheckoutFields();
+
+  // حساب الشحن تلقائياً عند الكتابة في حقل المنطقة
+  const areaInput = document.querySelector('#checkout-area');
+  const shippingCalc = document.querySelector('#shipping-calc');
+  const shippingCalcValue = document.querySelector('#shipping-calc-value');
+  const summaryShipping = document.querySelector('#summary-shipping');
+  const summaryTotal = document.querySelector('#summary-total');
+
+  function updateShippingDisplay() {
+    const cost = calcShipping(areaInput.value);
+    if (cost !== null && areaInput.value.trim()) {
+      shippingCalc.hidden = false;
+      shippingCalcValue.textContent = price(cost);
+      summaryShipping.textContent = price(cost);
+      summaryTotal.textContent = price(subtotal + cost);
+    } else {
+      shippingCalc.hidden = true;
+      summaryShipping.textContent = 'تُحدد بعد إدخال المنطقة';
+      summaryTotal.textContent = price(subtotal);
+    }
+  }
+
+  areaInput?.addEventListener('input', updateShippingDisplay);
+
+  // إعداد رقم الهاتف
+  const phone = document.querySelector('[name="customerPhone"]');
+  if (phone && !phone.dataset.kuwaitPrefixBound) {
+    phone.dataset.kuwaitPrefixBound = 'true';
+    phone.value = '+965';
+    phone.addEventListener('focus', () => phone.setSelectionRange(phone.value.length, phone.value.length));
+    phone.addEventListener('input', () => {
+      const digits = normalizePhone(phone.value).replace(/^965/, '').slice(0, 8);
+      phone.value = `+965${digits}`;
+      phone.setCustomValidity('');
+    });
+  }
+
+  renderCart();
 }
 
 function submitCheckout(form) {
