@@ -1,2 +1,220 @@
-/* Kuwait Shop Override — Cairo font + Kuwait flag colors */
-/* NOTE: No @import here — font is loaded in _document.js to avoid hydration mismatch */
+/* Kuwait Shop Override — responsive fixes for all devices */
+
+/* =====================================================
+   GLOBAL RESET
+   ===================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+img, svg, video, iframe {
+  max-width: 100%;
+  display: block;
+}
+
+/* =====================================================
+   SITE HEADER — sticky full-width on all screens
+   ===================================================== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* =====================================================
+   MAIN CONTENT — no horizontal bleed
+   ===================================================== */
+main,
+.product-page,
+.legal-page,
+.seo-landing,
+.checkout-page,
+.catalog,
+footer {
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* =====================================================
+   MOBILE  ≤ 479px
+   ===================================================== */
+@media (max-width: 479px) {
+
+  /* Header */
+  #app .site-header { height: 56px; padding: 0 12px; }
+  #app .brand-mark { width: 100px; height: 32px; }
+  #app .main-nav { display: none; }
+  #app .cart-trigger span:last-child { display: none; }
+  #app .cart-trigger { min-height: 36px; padding: 0 10px; border-radius: 6px; }
+
+  /* Announcement */
+  .announcement { font-size: 10px; min-height: 28px; padding: 0 10px; }
+  .announcement span:first-child,
+  .announcement span:nth-child(3),
+  .announcement span:nth-child(5) { display: none; }
+
+  /* Banner */
+  .site-banner { aspect-ratio: 16 / 6; }
+
+  /* Catalog */
+  #app .catalog { padding: 24px 12px 60px; }
+  #app .section-heading { display: block; }
+  #app .section-heading h2 { font-size: 20px; }
+  #app .search-and-sort { grid-template-columns: 1fr; gap: 8px; margin: 14px 0 10px; }
+  #app .results-meta { font-size: 10px; margin: 12px 0 8px; }
+
+  /* Category cards */
+  .category-cards { grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 8px !important; }
+  .category-card { min-height: 90px; padding: 14px 10px 10px; }
+  .category-card-icon { width: 34px; height: 34px; font-size: 18px; }
+  .category-card-name { font-size: 11px; }
+
+  /* Products grid */
+  #app .products-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 8px !important; }
+  #app .products-grid .product-content h3 { font-size: 10px; min-height: 32px; }
+  #app .products-grid .current-price { font-size: 12px; }
+  #app .products-grid .old-price,
+  #app .products-grid .availability { display: none; }
+  #app .products-grid .add-button span { display: none; }
+  #app .products-grid .add-button b { width: 28px; height: 28px; font-size: 16px; }
+
+  /* Floating cart — circle */
+  .floating-cart {
+    right: 12px !important;
+    bottom: 16px !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    justify-content: center !important;
+  }
+  .floating-cart-copy { display: none !important; }
+  .floating-cart-icon { width: 52px !important; height: 52px !important; border-radius: 50% !important; }
+  .floating-cart > b { position: absolute !important; top: -4px !important; left: -4px !important; }
+
+  /* Cart drawer */
+  #app .cart-drawer { width: 100vw; }
+
+  /* Product page */
+  .product-page .woodmart-product-layout { grid-template-columns: 1fr !important; gap: 18px !important; }
+  .product-gallery { grid-template-columns: 1fr !important; }
+  .gallery-thumbs { grid-template-columns: repeat(4, 48px) !important; order: 2 !important; }
+  .gallery-thumbs button { width: 48px !important; height: 52px !important; }
+  .product-page .product-detail-image { aspect-ratio: 1/1 !important; }
+  .product-page .product-detail-copy h1 { font-size: 20px !important; }
+  .detail-actions { grid-template-columns: 1fr !important; }
+  .whatsapp-product-button, .full-whatsapp-button { width: 100% !important; }
+
+  /* Checkout */
+  .checkout-layout { display: flex !important; flex-direction: column !important; gap: 16px !important; }
+  .checkout-summary-section { order: -1; }
+  .checkout-page { padding: 14px 12px 60px !important; }
+  .checkout-section-card { padding: 16px 12px !important; }
+  .checkout-page .form-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
+  .checkout-page input,
+  .checkout-page select { height: 52px !important; font-size: 16px !important; }
+  .checkout-page textarea { font-size: 16px !important; min-height: 88px !important; }
+  .checkout-item { grid-template-columns: 52px 1fr auto !important; gap: 8px !important; }
+  .checkout-item img { width: 52px !important; height: 52px !important; }
+  .checkout-submit-btn { min-height: 54px !important; font-size: 15px !important; }
+  .shipping-row { grid-template-columns: 42px 1fr !important; gap: 6px !important; padding: 8px 10px !important; }
+  .shipping-cost { font-size: 12px !important; }
+  .shipping-areas { font-size: 10px !important; }
+
+  /* Legal */
+  .legal-page { padding: 14px 12px 50px !important; }
+  .legal-hero { padding: 22px 16px !important; min-height: 180px !important; }
+  .legal-hero h1 { font-size: 22px !important; }
+  .legal-hero-mark { width: 50px !important; height: 50px !important; font-size: 20px !important; }
+  .legal-card { padding: 0 14px 20px !important; }
+  .legal-content > section { grid-template-columns: 24px 1fr !important; gap: 8px !important; }
+
+  /* Footer */
+  footer { grid-template-columns: 1fr !important; padding: 24px 14px 16px !important; }
+  footer > small { grid-column: auto !important; }
+  .footer-links { justify-content: flex-start !important; gap: 6px 12px !important; font-size: 10px !important; }
+  .company-attribution { font-size: 8px !important; }
+
+  /* Buttons */
+  .primary-button, .light-button, .outline-button { min-height: 50px !important; font-size: 14px !important; }
+  .drawer-footer .primary-button { min-height: 54px !important; font-size: 15px !important; }
+  .quantity-control button { width: 30px !important; height: 30px !important; }
+}
+
+/* =====================================================
+   SMALL MOBILE  480px – 570px
+   ===================================================== */
+@media (min-width: 480px) and (max-width: 570px) {
+  #app .site-header { height: 60px; padding: 0 14px; }
+  #app .products-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 10px !important; }
+  .category-cards { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+  .checkout-layout { display: flex !important; flex-direction: column !important; gap: 18px !important; }
+  .checkout-summary-section { order: -1; }
+  .checkout-page .form-grid { grid-template-columns: 1fr !important; }
+  .checkout-page input, .checkout-page select { font-size: 16px !important; }
+  .product-page .woodmart-product-layout { grid-template-columns: 1fr !important; }
+  .product-gallery { grid-template-columns: 1fr !important; }
+  footer { grid-template-columns: 1fr !important; padding: 26px 16px 18px !important; }
+}
+
+/* =====================================================
+   TABLET  571px – 767px
+   ===================================================== */
+@media (min-width: 571px) and (max-width: 767px) {
+  #app .site-header { height: 64px; padding: 0 18px; }
+  #app .brand-mark { width: 120px; height: 38px; }
+  #app .cart-trigger span:last-child { display: inline; }
+  #app .products-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 12px !important; }
+  .category-cards { grid-template-columns: repeat(3, minmax(0,1fr)) !important; }
+  .checkout-layout { display: flex !important; flex-direction: column !important; gap: 20px !important; }
+  .checkout-summary-section { order: -1; }
+  .checkout-page .form-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+  .checkout-page input, .checkout-page select { font-size: 16px !important; }
+  .product-page .woodmart-product-layout { grid-template-columns: 1fr !important; }
+  .product-gallery { grid-template-columns: 60px 1fr !important; }
+  footer { grid-template-columns: 1fr !important; padding: 28px 18px 20px !important; }
+  .floating-cart { right: 14px !important; bottom: 18px !important; }
+}
+
+/* =====================================================
+   TABLET LANDSCAPE  768px – 1023px
+   ===================================================== */
+@media (min-width: 768px) and (max-width: 1023px) {
+  #app .site-header { height: 70px; padding: 0 24px; }
+  #app .brand-mark { width: 130px; height: 40px; }
+  #app .main-nav { display: flex; }
+  #app .products-grid { grid-template-columns: repeat(3, minmax(0,1fr)) !important; gap: 14px !important; }
+  .category-cards { grid-template-columns: repeat(4, minmax(0,1fr)) !important; }
+  .checkout-layout { grid-template-columns: 1fr 300px !important; gap: 20px !important; }
+  .checkout-page { padding: 24px 20px 80px !important; }
+  .product-page .woodmart-product-layout { grid-template-columns: 1fr 1fr !important; gap: 30px !important; }
+  .product-gallery { grid-template-columns: 60px 1fr !important; }
+  footer { grid-template-columns: 1fr 2fr !important; padding: 36px 24px 20px !important; }
+}
+
+/* =====================================================
+   DESKTOP  1024px – 1279px
+   ===================================================== */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  #app .site-header { height: 78px; padding: 0 30px; }
+  #app .products-grid { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 16px !important; }
+  .checkout-layout { grid-template-columns: 1fr 380px !important; gap: 32px !important; }
+  .checkout-page { padding: 32px 30px 100px !important; }
+}
+
+/* =====================================================
+   LARGE DESKTOP  1280px+
+   ===================================================== */
+@media (min-width: 1280px) {
+  #app .site-header { height: 82px; padding: 0 36px; }
+  #app .products-grid { grid-template-columns: repeat(4, minmax(0,1fr)) !important; gap: 16px !important; }
+  .checkout-layout { grid-template-columns: 1fr 420px !important; gap: 40px !important; }
+  .checkout-page { padding: 40px 36px 120px !important; }
+}

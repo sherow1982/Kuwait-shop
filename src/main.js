@@ -691,7 +691,7 @@ function addCart(id, quantity = 1) {
   saveCart();
   renderCart();
   showToast(`تمت إضافة «${product.title}» إلى السلة`);
-  window.setTimeout(() => { if (document.querySelector('#cart-drawer')) openCart(); }, 120);
+  window.setTimeout(() => openCheckout(), 300);
 }
 
 function changeDetailQuantity(delta) {
