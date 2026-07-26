@@ -8,7 +8,7 @@ const organizationSchema = {
   name: 'كويت شوب',
   alternateName: 'Kuwait Shop',
   url: 'https://kuwait-shop.arabsads.shop/',
-  logo: 'https://kuwait-shop.arabsads.shop/brand/kuwait-shop-mark.svg',
+  logo: 'https://kuwait-shop.arabsads.shop/brand/kuwait-shop-logo.png',
   image: 'https://kuwait-shop.arabsads.shop/brand/kuwait-shop-social.png',
   description: 'متجر إلكتروني كويتي لمنتجات المنزل والحياة اليومية مع التوصيل داخل الكويت.',
   currenciesAccepted: 'KWD',
