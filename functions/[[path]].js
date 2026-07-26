@@ -39,7 +39,8 @@ async function getProducts(context) {
       .then((response) => {
         if (!response.ok) throw new Error('Unable to read the product catalog.');
         return response.json();
-      });
+      })
+      .catch((err) => { productsPromise = null; throw err; });
   }
   return productsPromise;
 }
@@ -111,8 +112,8 @@ function replaceMetadata(html, { title, description, canonical, type, image, sch
     .replace(/<meta\b(?=[^>]*\bproperty="og:image")[^>]*>/i, `<meta property="og:image" content="${escapeHtml(image)}" />`)
     .replace(/<meta\b(?=[^>]*\bproperty="og:image:secure_url")[^>]*>/i, `<meta property="og:image:secure_url" content="${escapeHtml(image)}" />`)
     .replace(/<meta\b(?=[^>]*\bproperty="og:image:type")[^>]*>/i, `<meta property="og:image:type" content="${imageType}" />`)
-    .replace(/<meta\b(?=[^>]*\bproperty="og:image:width")[^>]*>/i, `<meta property="og:image:width" content="800" />`)
-    .replace(/<meta\b(?=[^>]*\bproperty="og:image:height")[^>]*>/i, `<meta property="og:image:height" content="800" />`)
+    .replace(/<meta\b(?=[^>]*\bproperty="og:image:width")[^>]*>/i, `<meta property="og:image:width" content="1200" />`)
+    .replace(/<meta\b(?=[^>]*\bproperty="og:image:height")[^>]*>/i, `<meta property="og:image:height" content="630" />`)
     .replace(/<meta\b(?=[^>]*\bproperty="og:image:alt")[^>]*>/i, `<meta property="og:image:alt" content="${escapeHtml(title)}" />`)
     .replace(/<meta\b(?=[^>]*\bname="twitter:title")[^>]*>/i, `<meta name="twitter:title" content="${escapeHtml(title)}" />`)
     .replace(/<meta\b(?=[^>]*\bname="twitter:description")[^>]*>/i, `<meta name="twitter:description" content="${escapeHtml(description)}" />`)

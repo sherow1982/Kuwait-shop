@@ -1,5 +1,9 @@
 let storeMounted = false;
 
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => { storeMounted = false; });
+}
+
 export function mountStore() {
   if (storeMounted) return;
   storeMounted = true;
@@ -10,15 +14,14 @@ const state = {
   query: '',
   category: 'الكل',
   sort: 'featured',
-  cart: JSON.parse(localStorage.getItem('kuwait-shop-cart') || '[]'),
+  cart: (() => { try { return JSON.parse(localStorage.getItem('kuwait-shop-cart') || '[]'); } catch { return []; } })(),
   activeProduct: null,
   categoriesExpanded: false
 };
 
-const currency = new Intl.NumberFormat('ar-KW', {
+const currency = new Intl.NumberFormat('ar-KW-u-nu-latn', {
   minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
-  numberingSystem: 'latn'
+  maximumFractionDigits: 0
 });
 
 const app = document.querySelector('#app');
@@ -70,6 +73,7 @@ function updateSeoMetadata({ title, description, canonical, type = 'website' }) 
 }
 
 function productStructuredData(product, description, url) {
+  const priceValidUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -78,15 +82,27 @@ function productStructuredData(product, description, url) {
     image: [product.image],
     category: product.googleProductCategory || product.category,
     sku: product.id,
+    brand: { '@type': 'Brand', name: 'كويت شوب' },
     offers: {
       '@type': 'Offer',
       url,
       priceCurrency: 'KWD',
       price: Number(product.price).toFixed(2),
+      priceValidUntil,
       availability: 'https://schema.org/InStock',
       itemCondition: 'https://schema.org/NewCondition',
       seller: { '@id': 'https://kuwait-shop.arabsads.shop/#organization' },
-      hasMerchantReturnPolicy: { '@id': 'https://kuwait-shop.arabsads.shop/#return-policy' }
+      hasMerchantReturnPolicy: { '@id': 'https://kuwait-shop.arabsads.shop/#return-policy' },
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: { '@type': 'MonetaryAmount', value: '0', currency: 'KWD' },
+        shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'KW' },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+          transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' }
+        }
+      }
     }
   };
 }
@@ -349,7 +365,7 @@ function productCard(product) {
         </div>
         <div class="card-footer">
           <span class="availability"><i></i> متوفر في المخزون</span>
-          <button class="add-button" data-action="add-cart" data-product-id="${escapeHtml(product.id)}"><span>أضف للسلة</span><b aria-hidden="true">+</b></button>
+          <button class="add-button" data-action="add-cart" data-product-id="${escapeHtml(product.id)}" aria-label="أضف ${escapeHtml(product.title)} للسلة"><span aria-hidden="true">أضف للسلة</span><b aria-hidden="true">+</b></button>
         </div>
       </div>
     </article>`;
@@ -449,9 +465,10 @@ function renderProductPage(product) {
           <div class="detail-actions"><div class="detail-quantity" role="group" aria-label="كمية المنتج"><button data-action="detail-quantity-change" data-delta="-1" aria-label="تقليل الكمية">−</button><input id="detail-quantity" value="1" type="number" min="1" inputmode="numeric" aria-label="الكمية" /><button data-action="detail-quantity-change" data-delta="1" aria-label="زيادة الكمية">+</button></div><button class="primary-button detail-add-button" data-action="add-cart" data-detail-quantity="true" data-product-id="${escapeHtml(product.id)}">أضف إلى السلة <span aria-hidden="true">←</span></button></div>
           <button class="whatsapp-product-button full-whatsapp-button" data-action="product-whatsapp" data-product-id="${escapeHtml(product.id)}"><span>◉</span> اطلب هذا المنتج عبر واتساب</button>
           <div class="detail-trust"><span>✓ دفع وتأكيد آمن</span><span>✓ توصيل محلي</span><span>✓ دعم عبر واتساب</span></div>
+          <div class="product-share"><span>شارك المنتج:</span><a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(product.title + ' — ' + price(product.price) + ' | كويت شوب')}&url=${encodeURIComponent('https://kuwait-shop.arabsads.shop' + productPath(product))}" target="_blank" rel="noopener noreferrer" class="share-btn share-twitter" aria-label="مشاركة على تويتر"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>تويتر</span></a><a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://kuwait-shop.arabsads.shop' + productPath(product))}" target="_blank" rel="noopener noreferrer" class="share-btn share-facebook" aria-label="مشاركة على فيسبوك"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg><span>فيسبوك</span></a><button class="share-btn share-copy" data-action="share-copy" data-product-id="${escapeHtml(product.id)}" aria-label="نسخ رابط المنتج"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>نسخ الرابط</span></button></div>
         </div>
       </section>
-      <section class="product-tabs" id="product-info"><div class="product-tabs-nav" role="tablist"><button class="is-active" data-action="select-product-tab" data-product-tab="description" role="tab">الوصف</button><button data-action="select-product-tab" data-product-tab="shipping" role="tab">الشحن والتوصيل</button><button data-action="select-product-tab" data-product-tab="returns" role="tab">الاسترجاع والاسترداد</button><button data-action="select-product-tab" data-product-tab="information" role="tab">معلومات إضافية</button></div><div class="product-tab-content is-active" data-product-panel="description"><p>${escapeHtml(description)}</p></div><div class="product-tab-content" data-product-panel="shipping"><p>التوصيل متاح داخل دولة الكويت. الشحن مجاني لبعض المناطق، فيما تصل الرسوم إلى 5 د.ك للمناطق ذات الرسوم الخاصة. راجع <a href="/ar/shipping-policy">سياسة الشحن والتوصيل</a> قبل تأكيد الطلب.</p></div><div class="product-tab-content" data-product-panel="returns"><p>يمكنك طلب الاسترجاع أو الاستبدال خلال 14 يوماً من استلام الطلب، بشرط أن يكون المنتج غير مستخدم وفي عبوته الأصلية مع ملحقاته. المنتجات الشخصية أو القابلة للتلف أو المفتوحة لأسباب صحية لا تُقبل إلا عند وجود عيب مصنعي.</p><p>للطلبات التالفة أو غير المطابقة، تواصل معنا مع رقم الطلب وصور واضحة للمنتج. اقرأ <a href="/ar/refund-policy">سياسة الاسترجاع والاسترداد الكاملة</a> قبل تقديم الطلب.</p></div><div class="product-tab-content" data-product-panel="information"><div><span>التصنيف</span><strong>${escapeHtml(product.googleProductCategory || product.category)}</strong></div><div><span>رمز المنتج</span><strong>${escapeHtml(product.id)}</strong></div><div><span>الحالة</span><strong>متوفر في المخزون</strong></div></div></section>
+      <section class="product-tabs" id="product-info"><div class="product-tabs-nav" role="tablist"><button class="is-active" data-action="select-product-tab" data-product-tab="description" role="tab" aria-selected="true" aria-controls="panel-description">الوصف</button><button data-action="select-product-tab" data-product-tab="shipping" role="tab" aria-selected="false" aria-controls="panel-shipping">الشحن والتوصيل</button><button data-action="select-product-tab" data-product-tab="returns" role="tab" aria-selected="false" aria-controls="panel-returns">الاسترجاع والاسترداد</button><button data-action="select-product-tab" data-product-tab="information" role="tab" aria-selected="false" aria-controls="panel-information">معلومات إضافية</button></div><div id="panel-description" class="product-tab-content is-active" data-product-panel="description" role="tabpanel"><p>${escapeHtml(description)}</p></div><div id="panel-shipping" class="product-tab-content" data-product-panel="shipping" role="tabpanel"><p>التوصيل متاح داخل دولة الكويت. الشحن مجاني لبعض المناطق، فيما تصل الرسوم إلى 5 د.ك للمناطق ذات الرسوم الخاصة. راجع <a href="/ar/shipping-policy">سياسة الشحن والتوصيل</a> قبل تأكيد الطلب.</p></div><div id="panel-returns" class="product-tab-content" data-product-panel="returns" role="tabpanel"><p>يمكنك طلب الاسترجاع أو الاستبدال خلال 14 يوماً من استلام الطلب، بشرط أن يكون المنتج غير مستخدم وفي عبوته الأصلية مع ملحقاته. المنتجات الشخصية أو القابلة للتلف أو المفتوحة لأسباب صحية لا تُقبل إلا عند وجود عيب مصنعي.</p><p>للطلبات التالفة أو غير المطابقة، تواصل معنا مع رقم الطلب وصور واضحة للمنتج. اقرأ <a href="/ar/refund-policy">سياسة الاسترجاع والاسترداد الكاملة</a> قبل تقديم الطلب.</p></div><div id="panel-information" class="product-tab-content" data-product-panel="information" role="tabpanel"><div><span>التصنيف</span><strong>${escapeHtml(product.googleProductCategory || product.category)}</strong></div><div><span>رمز المنتج</span><strong>${escapeHtml(product.id)}</strong></div><div><span>الحالة</span><strong>متوفر في المخزون</strong></div></div></section>
       <section class="product-seo-guides"><div><p class="eyebrow">أدلة المنتج في الكويت</p><h2>تعرف على ${escapeHtml(product.title)}</h2></div><div>${Object.entries(SEO_PAGE_TYPES).map(([type, page]) => `<a href="${escapeHtml(seoLandingPath(product, type))}" target="_blank" rel="noopener"><span>${page.label}</span><b>${escapeHtml(product.title)}</b><i>←</i></a>`).join('')}</div></section>
       ${related.length ? `<section class="related-section"><div class="section-heading"><div><p class="eyebrow">قد يعجبك أيضاً</p><h2>منتجات من نفس التصنيف</h2></div><a class="text-button dark-text" href="/#products">عرض الكل <span>←</span></a></div><div class="products-grid">${related.map(productCard).join('')}</div></section>` : ''}
     </main>
@@ -462,6 +479,7 @@ function renderProductPage(product) {
     <div id="toast" class="toast" role="status" aria-live="polite"></div>`;
   renderCart();
   mountCheckoutFields();
+  document.querySelector('#cart-drawer')?.setAttribute('inert', '');
 }
 
 function renderLegalPage(key) {
@@ -549,11 +567,21 @@ function renderSeoLandingPage(product, type) {
   mountCheckoutFields();
 }
 
+function shareProduct(product, platform) {
+  const url = encodeURIComponent(`https://kuwait-shop.arabsads.shop${productPath(product)}`);
+  const text = encodeURIComponent(`${product.title} — ${price(product.price)} | كويت شوب`);
+  if (platform === 'twitter') window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'noopener,noreferrer,width=600,height=400');
+  if (platform === 'facebook') window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'noopener,noreferrer,width=600,height=400');
+  if (platform === 'copy') {
+    navigator.clipboard.writeText(decodeURIComponent(url)).then(() => showToast('تم نسخ رابط المنتج')).catch(() => showToast('تعذّر نسخ الرابط'));
+  }
+}
+
 function renderProductDialog() {
   const dialog = document.querySelector('#product-dialog');
   const product = state.activeProduct;
   if (!product) {
-    dialog.close();
+    if (dialog?.open) dialog.close();
     return;
   }
   dialog.innerHTML = `
@@ -696,7 +724,11 @@ function changeDetailQuantity(delta) {
 }
 
 function selectProductTab(tabName) {
-  document.querySelectorAll('[data-product-tab]').forEach((button) => button.classList.toggle('is-active', button.dataset.productTab === tabName));
+  document.querySelectorAll('[data-product-tab]').forEach((button) => {
+    const isActive = button.dataset.productTab === tabName;
+    button.classList.toggle('is-active', isActive);
+    button.setAttribute('aria-selected', String(isActive));
+  });
   document.querySelectorAll('[data-product-panel]').forEach((panel) => panel.classList.toggle('is-active', panel.dataset.productPanel === tabName));
 }
 
@@ -771,6 +803,7 @@ app.addEventListener('click', (event) => {
   if (action === 'close-product') { state.activeProduct = null; renderProductDialog(); }
   if (action === 'close-checkout') closeCheckout();
   if (action === 'product-whatsapp') sendProductToWhatsApp(productById(productId));
+  if (action === 'share-copy') shareProduct(productById(productId), 'copy');
   if (action === 'slider-next') setSliderSlide(Number(document.querySelector('.featured-slider')?.dataset.sliderIndex || 0) + 1);
   if (action === 'slider-prev') setSliderSlide(Number(document.querySelector('.featured-slider')?.dataset.sliderIndex || 0) - 1);
   if (action === 'slider-go') setSliderSlide(Number(target.dataset.slideIndex || 0));
