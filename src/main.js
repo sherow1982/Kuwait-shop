@@ -1,4 +1,4 @@
-﻿let storeMounted = false;
+let storeMounted = false;
 
 if (import.meta.hot) {
   import.meta.hot.dispose(() => { storeMounted = false; });
@@ -360,14 +360,14 @@ function discount(product) {
   return product.original > product.price ? Math.round((1 - product.price / product.original) * 100) : 0;
 }
 
-function productCard(product) {
+function productCard(product, eager = false) {
   const savings = discount(product);
   return `
     <article class="product-card">
       <a class="product-image" href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener" aria-label="عرض ${escapeHtml(product.title)}">
         <span class="product-badge product-badge-new">جديد</span>
         ${savings ? `<span class="discount-badge">−${savings}%</span>` : ''}
-        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" loading="lazy" decoding="async" width="400" height="400" onerror="this.classList.add('image-failed'); this.alt='صورة المنتج غير متاحة';" />
+        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" loading="${eager ? 'eager' : 'lazy'}" decoding="async" width="400" height="400" onerror="this.classList.add('image-failed'); this.alt='صورة المنتج غير متاحة';" />
       </a>
       <div class="product-hover-actions"><button data-action="open-product" data-product-id="${escapeHtml(product.id)}" aria-label="معاينة سريعة لـ ${escapeHtml(product.title)}"><span aria-hidden="true">⌕</span></button><button data-action="toggle-wishlist" data-product-id="${escapeHtml(product.id)}" aria-label="إضافة ${escapeHtml(product.title)} للمفضلة"><span aria-hidden="true">♡</span></button></div>
       <div class="product-content">
@@ -395,7 +395,7 @@ function renderProducts() {
 
   count.textContent = `${currency.format(allProducts.length)} منتج`;
   grid.innerHTML = results.length
-    ? results.map(productCard).join('')
+    ? results.map((product, index) => productCard(product, index < 4)).join('')
     : `<div class="empty-state"><span>⌕</span><h3>لم نجد ما تبحث عنه</h3><p>جرّب كلمات مختلفة أو تصنيفاً آخر.</p><button class="outline-button" data-action="reset-filters">عرض كل المنتجات</button></div>`;
   loadMore.hidden = results.length >= allProducts.length || !results.length;
   loadMore.querySelector('span').textContent = `عرض المزيد (${Math.max(0, allProducts.length - results.length).toLocaleString('en-US')})`;
@@ -498,7 +498,7 @@ function renderProductPage(product) {
     <footer><a class="brand" href="/" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a><p>وجهتك اليومية لمنتجات البيت والحياة في الكويت.</p>${legalFooterMarkup()}${companyFooterMarkup()}<small>© ${new Date().getFullYear()} كويت شوب. جميع الحقوق محفوظة.</small></footer>
     <aside id="cart-drawer" class="cart-drawer" aria-label="سلة التسوق" aria-hidden="true"><div class="drawer-header"><div><p class="eyebrow">طلبك المختار</p><h2>سلة التسوق <small data-cart-count>0</small></h2></div><button data-action="close-cart" aria-label="إغلاق السلة">×</button></div><ul id="cart-list"></ul><div class="drawer-footer"><div><span>الإجمالي التقريبي</span><strong id="cart-total"></strong></div><button id="checkout-button" class="primary-button full-button" data-action="checkout">إتمام الطلب <span>←</span></button><small>سيتم تأكيد التوصيل والدفع عند إتمام الطلب.</small></div></aside><div class="drawer-backdrop" id="drawer-backdrop" data-action="close-cart"></div>
     <button class="floating-cart" data-action="open-cart" aria-label="فتح السلة العائمة"><span class="floating-cart-icon">♧</span><span class="floating-cart-copy"><strong>السلة</strong><small id="floating-cart-total">٠٫٠٠ د.ك</small></span><b data-cart-count>0</b></button>
-    <dialog id="checkout-dialog" class="checkout-dialog" aria-label="بيانات إتمام الطلب"><div class="checkout-dialog-inner"><button class="dialog-close" data-action="close-checkout" aria-label="إغلاق">×</button><div class="checkout-heading"><p class="eyebrow">خطوة أخيرة</p><h2>أرسل طلبك للمتجر</h2><p>أدخل بيانات التوصيل، وسنفتح لك واتساب برسالة مرتبة بكل المنتجات والتفاصيل.</p></div><form id="checkout-form"><div class="form-grid"><label><span>الاسم الكامل</span><input name="customerName" autocomplete="name" required placeholder="مثال: محمد العتيبي" /></label><label><span>رقم الهاتف</span><input name="customerPhone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="مثال: 5xxxxxxxx" /></label></div><label><span>منطقة وعنوان التوصيل</span><input name="address" autocomplete="street-address" required placeholder="مثال: السالمية، قطعة 4، شارع 12، منزل 8" /></label><label><span>ملاحظات إضافية <small>(اختياري)</small></span><textarea name="notes" rows="3" placeholder="وقت مناسب للتوصيل أو أي تفاصيل تساعدنا..."></textarea></label><button class="primary-button full-button" type="submit">فتح واتساب وإرسال الطلب <span>←</span></button><small class="form-note">سيتم فتح محادثة واتساب برسالة جاهزة للمراجعة قبل الإرسال.</small></form></div></dialog>
+    
     <div id="toast" class="toast" role="status" aria-live="polite"></div>`;
   renderCart();
   mountCheckoutFields();
@@ -546,7 +546,7 @@ function renderLegalPage(key) {
     <footer><a class="brand" href="/" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a><p>وجهتك اليومية لمنتجات البيت والحياة في الكويت.</p>${legalFooterMarkup()}${companyFooterMarkup()}<small>© ${new Date().getFullYear()} كويت شوب. جميع الحقوق محفوظة.</small></footer>
     <aside id="cart-drawer" class="cart-drawer" aria-label="سلة التسوق" aria-hidden="true"><div class="drawer-header"><div><p class="eyebrow">طلبك المختار</p><h2>سلة التسوق <small data-cart-count>0</small></h2></div><button data-action="close-cart" aria-label="إغلاق السلة">×</button></div><ul id="cart-list"></ul><div class="drawer-footer"><div><span>الإجمالي التقريبي</span><strong id="cart-total"></strong></div><button id="checkout-button" class="primary-button full-button" data-action="checkout">إتمام الطلب <span>←</span></button><small>سيتم تأكيد التوصيل والدفع عند إتمام الطلب.</small></div></aside><div class="drawer-backdrop" id="drawer-backdrop" data-action="close-cart"></div>
     <button class="floating-cart" data-action="open-cart" aria-label="فتح السلة العائمة"><span class="floating-cart-icon">♧</span><span class="floating-cart-copy"><strong>السلة</strong><small id="floating-cart-total">٠ د.ك</small></span><b data-cart-count>0</b></button>
-    <dialog id="checkout-dialog" class="checkout-dialog" aria-label="بيانات إتمام الطلب"><div class="checkout-dialog-inner"><button class="dialog-close" data-action="close-checkout" aria-label="إغلاق">×</button><div class="checkout-heading"><p class="eyebrow">خطوة أخيرة</p><h2>أرسل طلبك للمتجر</h2><p>أدخل بيانات التوصيل، وسنفتح لك واتساب برسالة مرتبة بكل المنتجات والتفاصيل.</p></div><form id="checkout-form"><div class="form-grid"><label><span>الاسم الكامل</span><input name="customerName" autocomplete="name" required placeholder="مثال: محمد العتيبي" /></label><label><span>رقم الهاتف</span><input name="customerPhone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+96599077241" /></label></div><label><span>منطقة وعنوان التوصيل</span><input name="address" autocomplete="street-address" required placeholder="مثال: السالمية، قطعة 4، شارع 12، منزل 8" /></label><label><span>ملاحظات إضافية <small>(اختياري)</small></span><textarea name="notes" rows="3" placeholder="وقت مناسب للتوصيل أو أي تفاصيل تساعدنا..."></textarea></label><button class="primary-button full-button" type="submit">فتح واتساب وإرسال الطلب <span>←</span></button><small class="form-note">سيتم فتح محادثة واتساب برسالة جاهزة للمراجعة قبل الإرسال.</small></form></div></dialog>
+    
     <div id="toast" class="toast" role="status" aria-live="polite"></div>`;
   renderCart();
   mountCheckoutFields();
@@ -585,7 +585,7 @@ function renderSeoLandingPage(product, type) {
     <main class="seo-landing" id="top"><div class="product-breadcrumbs"><a href="/">الرئيسية</a><span>←</span><a href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener">${escapeHtml(product.title)}</a><span>←</span><strong>${page.label}</strong></div><section class="seo-landing-hero"><div><p class="eyebrow">${page.eyebrow} · الكويت</p><h1>${page.title(product)}</h1><p>${page.intro(product)}</p><div class="seo-hero-actions"><a class="primary-button" href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener">عرض المنتج <span>←</span></a><a class="text-button dark-text" href="/ar/shipping-policy">سياسة الشحن <span>←</span></a></div></div><a class="seo-product-summary" href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" /><span>${escapeHtml(product.category)}</span><b>${escapeHtml(product.title)}</b><strong>${price(product.price)}</strong></a></section><article class="seo-guide-content">${sections}</article><section class="seo-guide-cta"><p class="eyebrow">جاهز للطلب؟</p><h2>اطلب ${escapeHtml(product.title)} داخل الكويت</h2><a class="primary-button" href="${escapeHtml(productPath(product))}" target="_blank" rel="noopener">الانتقال لصفحة المنتج <span>←</span></a></section></main>
     <footer><a class="brand" href="/" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a><p>وجهتك اليومية لمنتجات البيت والحياة في الكويت.</p>${legalFooterMarkup()}${companyFooterMarkup()}<small>© ${new Date().getFullYear()} كويت شوب. جميع الحقوق محفوظة.</small></footer>
     <aside id="cart-drawer" class="cart-drawer" aria-label="سلة التسوق" aria-hidden="true"><div class="drawer-header"><div><p class="eyebrow">طلبك المختار</p><h2>سلة التسوق <small data-cart-count>0</small></h2></div><button data-action="close-cart" aria-label="إغلاق السلة">×</button></div><ul id="cart-list"></ul><div class="drawer-footer"><div><span>الإجمالي التقريبي</span><strong id="cart-total"></strong></div><button id="checkout-button" class="primary-button full-button" data-action="checkout">إتمام الطلب <span>←</span></button><small>يتم تأكيد التوصيل والدفع قبل الإرسال.</small></div></aside><div class="drawer-backdrop" id="drawer-backdrop" data-action="close-cart"></div><button class="floating-cart" data-action="open-cart" aria-label="فتح السلة العائمة"><span class="floating-cart-icon">♧</span><span class="floating-cart-copy"><strong>السلة</strong><small id="floating-cart-total">٠ د.ك</small></span><b data-cart-count>0</b></button>
-    <dialog id="checkout-dialog" class="checkout-dialog" aria-label="بيانات إتمام الطلب"><div class="checkout-dialog-inner"><button class="dialog-close" data-action="close-checkout" aria-label="إغلاق">×</button><div class="checkout-heading"><p class="eyebrow">خطوة أخيرة</p><h2>أرسل طلبك للمتجر</h2><p>أدخل بيانات التوصيل، وسنفتح لك واتساب برسالة مرتبة بكل المنتجات والتفاصيل.</p></div><form id="checkout-form"><div class="form-grid"><label><span>الاسم الكامل</span><input name="customerName" autocomplete="name" required placeholder="مثال: محمد العتيبي" /></label><label><span>رقم الهاتف</span><input name="customerPhone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+96599077241" /></label></div><label><span>منطقة وعنوان التوصيل</span><input name="address" autocomplete="street-address" required placeholder="مثال: السالمية، قطعة 4، شارع 12، منزل 8" /></label><label><span>ملاحظات إضافية <small>(اختياري)</small></span><textarea name="notes" rows="3" placeholder="وقت مناسب للتوصيل أو أي تفاصيل تساعدنا..."></textarea></label><button class="primary-button full-button" type="submit">فتح واتساب وإرسال الطلب <span>←</span></button><small class="form-note">سيتم فتح محادثة واتساب برسالة جاهزة للمراجعة قبل الإرسال.</small></form></div></dialog><div id="toast" class="toast" role="status" aria-live="polite"></div>`;
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>`;
   renderCart();
   mountCheckoutFields();
 }
@@ -656,8 +656,7 @@ function render() {
     <footer><a class="brand" href="#top" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a><p>وجهتك اليومية لمنتجات البيت والحياة في الكويت.</p>${legalFooterMarkup()}${companyFooterMarkup()}<small>© ${new Date().getFullYear()} كويت شوب. جميع الحقوق محفوظة.</small></footer>
     <aside id="cart-drawer" class="cart-drawer" aria-label="سلة التسوق" aria-hidden="true"><div class="drawer-header"><div><p class="eyebrow">طلبك المختار</p><h2>سلة التسوق <small data-cart-count>0</small></h2></div><button data-action="close-cart" aria-label="إغلاق السلة">×</button></div><ul id="cart-list"></ul><div class="drawer-footer"><div><span>الإجمالي التقريبي</span><strong id="cart-total"></strong></div><button id="checkout-button" class="primary-button full-button" data-action="checkout">إتمام الطلب <span>←</span></button><small>سيتم تأكيد التوصيل والدفع عند إتمام الطلب.</small></div></aside><div id="drawer-backdrop" class="drawer-backdrop" data-action="close-cart"></div>
     <dialog id="product-dialog" aria-label="تفاصيل المنتج"></dialog>
-    <dialog id="checkout-dialog" class="checkout-dialog" aria-label="بيانات إتمام الطلب"><div class="checkout-dialog-inner"><button class="dialog-close" data-action="close-checkout" aria-label="إغلاق">×</button><div class="checkout-heading"><p class="eyebrow">خطوة أخيرة</p><h2>أرسل طلبك للمتجر</h2><p>أدخل بيانات التوصيل، وسنفتح لك واتساب برسالة مرتبة بكل المنتجات والتفاصيل.</p></div><form id="checkout-form"><div class="form-grid"><label><span>الاسم الكامل</span><input name="customerName" autocomplete="name" required placeholder="مثال: محمد العتيبي" /></label><label><span>رقم الهاتف</span><input name="customerPhone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="مثال: 5xxxxxxxx" /></label></div><label><span>منطقة وعنوان التوصيل</span><input name="address" autocomplete="street-address" required placeholder="مثال: السالمية، قطعة 4، شارع 12، منزل 8" /></label><label><span>ملاحظات إضافية <small>(اختياري)</small></span><textarea name="notes" rows="3" placeholder="وقت مناسب للتوصيل أو أي تفاصيل تساعدنا..."></textarea></label><button class="primary-button full-button" type="submit">فتح واتساب وإرسال الطلب <span>←</span></button><small class="form-note">سيتم فتح محادثة واتساب برسالة جاهزة للمراجعة قبل الإرسال.</small></form></div></dialog>
-    <button class="floating-cart" data-action="open-cart" aria-label="فتح السلة العائمة"><span class="floating-cart-icon">♧</span><span class="floating-cart-copy"><strong>السلة</strong><small id="floating-cart-total">٠٫٠٠ د.ك</small></span><b data-cart-count>0</b></button>
+    
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
   `;
   renderCategories();
@@ -733,12 +732,90 @@ function changeQuantity(id, delta) {
 
 function openCheckout() {
   if (!state.cart.length) return;
-  const dialog = document.querySelector('#checkout-dialog');
-  if (!dialog.open) dialog.showModal();
+  history.pushState({ page: 'checkout' }, '', '/checkout');
+  renderCheckoutPage();
 }
 
 function closeCheckout() {
-  document.querySelector('#checkout-dialog')?.close();
+  history.back();
+}
+
+function renderCheckoutPage() {
+  const cartItems = state.cart;
+  const total = cartTotal();
+  app.innerHTML = `
+    <div class="announcement"><span>🇰🇼</span><b>تسوّق كويتي براحة</b><span>•</span><span>توصيل إلى مختلف مناطق الكويت</span></div>
+    <header class="site-header">
+      <a href="/" class="brand" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a>
+      <nav class="main-nav" aria-label="التنقل الرئيسي"><a href="/">الرئيسية</a><a href="/#products">تسوّق</a></nav>
+      <div class="header-actions"><button class="cart-trigger" data-action="open-cart" aria-label="فتح السلة"><span class="bag-icon">♧</span><b data-cart-count>0</b><span>السلة</span></button></div>
+    </header>
+    <main class="checkout-page" id="top">
+      <div class="checkout-breadcrumbs"><a href="/">الرئيسية</a><span>←</span><a href="/#products" data-action="go-back">السلة</a><span>←</span><strong>إتمام الطلب</strong></div>
+      <div class="checkout-layout">
+        <section class="checkout-form-section">
+          <div class="checkout-section-card">
+            <h2 class="checkout-section-title"><span class="checkout-step-num">١</span> بيانات التوصيل</h2>
+            <form id="checkout-form">
+              <div class="form-grid">
+                <label><span>الاسم الكامل</span><input name="customerName" autocomplete="name" required placeholder="مثال: محمد العتيبي" /></label>
+                <label><span>رقم الهاتف</span><input name="customerPhone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+96599077241" /></label>
+              </div>
+              <label><span>منطقة وعنوان التوصيل</span><input name="address" autocomplete="street-address" required placeholder="مثال: السالمية، قطعة 4، شارع 12، منزل 8" /></label>
+              <label><span>ملاحظات إضافية <small>(اختياري)</small></span><textarea name="notes" rows="3" placeholder="وقت مناسب للتوصيل أو أي تفاصيل تساعدنا..."></textarea></label>
+              <div class="checkout-trust-row">
+                <span>✓ بياناتك آمنة</span>
+                <span>✓ تأكيد عبر واتساب</span>
+                <span>✓ توصيل داخل الكويت</span>
+              </div>
+              <button class="primary-button full-button checkout-submit-btn" type="submit">تأكيد الطلب عبر واتساب <span>←</span></button>
+              <p class="form-note">سيتم فتح محادثة واتساب برسالة جاهزة تحتوي كل تفاصيل طلبك للمراجعة قبل الإرسال.</p>
+            </form>
+          </div>
+        </section>
+        <aside class="checkout-summary-section">
+          <div class="checkout-section-card">
+            <h2 class="checkout-section-title"><span class="checkout-step-num">٢</span> ملخص الطلب</h2>
+            <ul class="checkout-items-list">
+              ${cartItems.map((item) => {
+                const product = productById(item.id);
+                return `<li class="checkout-item">
+                  <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" />
+                  <div class="checkout-item-info">
+                    <strong>${escapeHtml(item.title)}</strong>
+                    <span class="checkout-item-shipping">${escapeHtml(product?.shipping || 'الشحن حسب المنطقة')}</span>
+                  </div>
+                  <div class="checkout-item-price">
+                    <b>${price(item.price * item.quantity)}</b>
+                    <small>× ${item.quantity}</small>
+                  </div>
+                </li>`;
+              }).join('')}
+            </ul>
+            <div class="checkout-totals">
+              <div><span>إجمالي المنتجات</span><strong>${price(total)}</strong></div>
+              <div><span>مصاريف الشحن</span><strong class="checkout-shipping-note">تُحدد عند التأكيد</strong></div>
+              <div class="checkout-grand-total"><span>الإجمالي التقريبي</span><strong>${price(total)}</strong></div>
+            </div>
+            <div class="checkout-payment-methods">
+              <p class="checkout-payment-label">طرق الدفع المتاحة</p>
+              <div class="checkout-payment-icons">
+                <span class="payment-badge">💵 كاش</span>
+                <span class="payment-badge">💳 بطاقة</span>
+                <span class="payment-badge">📱 KNET</span>
+              </div>
+            </div>
+          </div>
+          <div class="checkout-secure-badge">
+            <span>🔒</span>
+            <div><strong>طلب آمن ومحمي</strong><small>بياناتك لا تُشارك مع أي طرف ثالث</small></div>
+          </div>
+        </aside>
+      </div>
+    </main>
+    <footer><a class="brand" href="/" aria-label="كويت شوب - الرئيسية"><span class="brand-mark" aria-hidden="true"></span></a><p>وجهتك اليومية لمنتجات البيت والحياة في الكويت.</p>${legalFooterMarkup()}${companyFooterMarkup()}<small>© ${new Date().getFullYear()} كويت شوب. جميع الحقوق محفوظة.</small></footer>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>`;
+  mountCheckoutFields();
 }
 
 function submitCheckout(form) {
@@ -789,7 +866,7 @@ function submitCheckout(form) {
   ].filter(Boolean).join('\n');
   const whatsappUrl = `https://wa.me/201110760081?text=${encodeURIComponent(message)}`;
   window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-  closeCheckout();
+  history.back();
   showToast('تم تجهيز طلبك وفتح واتساب للمراجعة والإرسال.');
 }
 
@@ -803,6 +880,7 @@ app.addEventListener('click', (event) => {
   if (action === 'open-product') { state.activeProduct = productById(productId); renderProductDialog(); }
   if (action === 'close-product') { state.activeProduct = null; renderProductDialog(); }
   if (action === 'close-checkout') closeCheckout();
+  if (action === 'go-back') { event.preventDefault(); history.back(); }
   if (action === 'product-whatsapp') sendProductToWhatsApp(productById(productId));
   if (action === 'share-copy') shareProduct(productById(productId), 'copy');
 
@@ -830,6 +908,20 @@ app.addEventListener('submit', (event) => {
   if (event.target.id !== 'checkout-form') return;
   event.preventDefault();
   submitCheckout(event.target);
+});
+
+window.addEventListener('popstate', () => {
+  const decodedPathname = decodeURIComponent(window.location.pathname);
+  if (decodedPathname === '/checkout') { renderCheckoutPage(); return; }
+  const legalKey = LEGAL_PATHS[decodedPathname.replace(/\/$/, '') || '/'];
+  const seoRoute = decodedPathname.match(/^\/(\u0634راء|افضل|احسن|تجربتي)\/(.+)$/);
+  const seoProduct = seoRoute ? productBySlug(seoRoute[2]) : null;
+  const productRoute = decodedPathname.match(/^\/product\/(.+)$/);
+  const routedProduct = productRoute ? productBySlug(productRoute[1]) : null;
+  if (legalKey) renderLegalPage(legalKey);
+  else if (seoProduct) renderSeoLandingPage(seoProduct, seoRoute[1]);
+  else if (routedProduct) renderProductPage(routedProduct);
+  else render();
 });
 
 app.addEventListener('input', (event) => {
