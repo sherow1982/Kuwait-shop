@@ -9,9 +9,9 @@
   "theme_color": "#007a3d",
   "icons": [
     {
-      "src": "/brand/kuwait-shop-logo.png",
+      "src": "/brand/kuwait-shop-logo.jpg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ]
