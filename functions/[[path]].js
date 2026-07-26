@@ -231,11 +231,12 @@ export async function onRequest(context) {
       'cache-control': 'public, max-age=0, s-maxage=3600',
       'content-security-policy': [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://kuwait-shop.arabsads.shop",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://kuwait-shop.arabsads.shop https://static.cloudflareinsights.com https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com https://bat.bing.com",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com data:",
-        "img-src 'self' data: https://assets.wuiltstore.com https://kuwait-shop.arabsads.shop",
-        "connect-src 'self' https://kuwait-shop.arabsads.shop https://fonts.googleapis.com https://fonts.gstatic.com",
+        "img-src 'self' data: blob: https://assets.wuiltstore.com https://kuwait-shop.arabsads.shop https://www.google.com https://www.google.com.eg https://stats.g.doubleclick.net https://bat.bing.com",
+        "connect-src 'self' https://kuwait-shop.arabsads.shop https://fonts.googleapis.com https://fonts.gstatic.com https://cloudflareinsights.com https://static.cloudflareinsights.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://www.googletagmanager.com https://bat.bing.com https://ad.doubleclick.net",
+        "frame-src https://www.googletagmanager.com",
         "frame-ancestors 'none'"
       ].join('; ')
     }
